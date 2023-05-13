@@ -5,7 +5,7 @@
 namespace EfRepositorySample.Book
 {
   /// <summary>Provides a simple API to persistence of the <see cref="EfRepositorySample.Book.IBookEntity"/>.</summary>
-  public interface IBookRepository
+  public interface IBookRepository : IRepository<IBookEntity, IBookIdentity>
   {
   }
 }

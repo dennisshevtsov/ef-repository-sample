@@ -7,5 +7,7 @@ namespace EfRepositorySample.Author
   /// <summary>Represents an author identity.</summary>
   public interface IAuthorIdentity
   {
+    /// <summary>Gets an object that represents an ID of an author.</summary>
+    public Guid AuthorId { get; }
   }
 }

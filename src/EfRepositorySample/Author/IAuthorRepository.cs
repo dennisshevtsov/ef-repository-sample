@@ -5,7 +5,7 @@
 namespace EfRepositorySample.Author
 {
   /// <summary>Provides a simple API to persistence of the <see cref="EfRepositorySample.Author.IAuthorEntity"/>.</summary>
-  public interface IAuthorRepository
+  public interface IAuthorRepository : IRepository<IAuthorEntity, IAuthorIdentity>
   {
   }
 }

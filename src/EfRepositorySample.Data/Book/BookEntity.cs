@@ -17,10 +17,16 @@ namespace EfRepositorySample.Data.Book
     }
 
     /// <summary>Initializes a new instance of the <see cref="EfRepositorySample.Data.Book.BookEntity"/> class.</summary>
-    /// <param name="bookEntity">An object that represents a book entity.</param>
-    public BookEntity(IBookEntity bookEntity) : this()
+    /// <param name="bookEntity">An object that represents a book identity.</param>
+    public BookEntity(IBookIdentity bookIdentity) : this()
     {
-      BookId      = bookEntity.BookId;
+      BookId = bookIdentity.BookId;
+    }
+
+    /// <summary>Initializes a new instance of the <see cref="EfRepositorySample.Data.Book.BookEntity"/> class.</summary>
+    /// <param name="bookEntity">An object that represents a book entity.</param>
+    public BookEntity(IBookEntity bookEntity) : this((IBookIdentity)bookEntity)
+    {
       Title       = bookEntity.Title;
       Description = bookEntity.Description;
       Pages       = bookEntity.Pages;

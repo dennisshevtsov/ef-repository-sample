@@ -4,8 +4,13 @@
 
 namespace Microsoft.Extensions.DependencyInjection
 {
+  using Microsoft.Extensions.Configuration;
+  using Microsoft.Extensions.Options;
+  using Microsoft.EntityFrameworkCore;
+
   using EfRepositorySample.Author;
   using EfRepositorySample.Book;
+  using EfRepositorySample.Data;
   using EfRepositorySample.Data.Author;
   using EfRepositorySample.Data.Book;
 
@@ -14,9 +19,23 @@ namespace Microsoft.Extensions.DependencyInjection
   {
     /// <summary>Registers infrastructure services.</summary>
     /// <param name="services">An object that specifies the contract for a collection of service descriptors.</param>
+    /// <param name="configuration">An object that represents a set of key/value application configuration properties.</param>
     /// <returns>An object that specifies the contract for a collection of service descriptors.</returns>
-    public static IServiceCollection AddData(this IServiceCollection services)
+    public static IServiceCollection AddData(this IServiceCollection services, IConfiguration configuration)
     {
+      services.Configure<DbOptions>(configuration);
+      services.AddDbContext<DbContext, AppDbContext>((provider, builder) =>
+      {
+        var options = provider.GetRequiredService<IOptions<DbOptions>>().Value;
+
+        if (string.IsNullOrWhiteSpace(options.ConnectionString))
+        {
+          throw new ArgumentNullException(nameof(DbOptions.ConnectionString));
+        }
+
+        builder.UseNpgsql(options.ConnectionString);
+      });
+
       services.AddRepositories();
 
       return services;

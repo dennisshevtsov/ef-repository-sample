@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 namespace EfRepositorySample.Data
 {
   /// <summary>Provides a simple API to persistence of an entity.</summary>
-  public abstract class RepositoryBase<TEntity, TIdentity> : IRepository<TEntity, TIdentity>
+  public abstract class RepositoryBase<TEntityImpl, TEntity, TIdentity> : IRepository<TEntity, TIdentity>
   {
     private readonly DbContext _dbContext;
 

@@ -21,8 +21,6 @@ namespace EfRepositorySample.Data
     /// <exception cref="System.NotSupportedException">Throws if there is no such entity.</exception>
     public static EntityBase Create(object entity)
     {
-      ArgumentNullException.ThrowIfNull(entity);
-
       if (entity is IAuthorEntity authorEntity)
       {
         return new AuthorEntity(authorEntity);

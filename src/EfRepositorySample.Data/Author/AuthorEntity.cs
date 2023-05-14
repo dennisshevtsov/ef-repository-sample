@@ -7,7 +7,7 @@ namespace EfRepositorySample.Data.Author
   using EfRepositorySample.Author;
 
   /// <summary>Represents an author entity.</summary>
-  public sealed class AuthorEntity : IAuthorEntity
+  public sealed class AuthorEntity : EntityBase, IAuthorEntity
   {
     /// <summary>Initializes a new instance of the <see cref="EfRepositorySample.Data.Author.AuthorEntity"/> class.</summary>
     public AuthorEntity()
@@ -26,7 +26,7 @@ namespace EfRepositorySample.Data.Author
     }
 
     /// <summary>Gets an object that represents an ID of an author.</summary>
-    public Guid AuthorId { get; }
+    public Guid AuthorId { get => Id; set => Id = value; }
 
     /// <summary>Gets an object that represents a name of an author.</summary>
     public string Name { get; }

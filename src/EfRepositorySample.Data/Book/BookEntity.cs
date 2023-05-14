@@ -7,7 +7,7 @@ namespace EfRepositorySample.Data.Book
   using EfRepositorySample.Book;
 
   /// <summary>Represents a book entity.</summary>
-  public sealed class BookEntity : IBookEntity
+  public sealed class BookEntity : EntityBase, IBookEntity
   {
     /// <summary>Initializes a new instance of the <see cref="EfRepositorySample.Data.Book.BookEntity"/> class.</summary>
     public BookEntity()
@@ -27,7 +27,7 @@ namespace EfRepositorySample.Data.Book
     }
 
     /// <summary>Gets an object that represents an ID of a book.</summary>
-    public Guid BookId { get; }
+    public Guid BookId { get => Id; set => Id = value; }
 
     /// <summary>Gets an object that represents a title of a book.</summary>
     public string Title { get; }

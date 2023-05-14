@@ -29,6 +29,6 @@ namespace EfRepositorySample
     /// <param name="identity">An object that represents an identity of an entity.</param>
     /// <param name="cancellationToken">An object that propagates notification that operations should be canceled.</param>
     /// <returns>An object that represents an asynchronous operation.</returns>
-    public Task DeleteAsync(IIdentity identity, CancellationToken cancellationToken);
+    public Task DeleteAsync(TIdentity identity, CancellationToken cancellationToken);
   }
 }

@@ -4,11 +4,6 @@
 
 namespace EfRepositorySample.Data
 {
-  using EfRepositorySample.Author;
-  using EfRepositorySample.Book;
-  using EfRepositorySample.Data.Author;
-  using EfRepositorySample.Data.Book;
-
   /// <summary>Represents an entity base.</summary>
   public abstract class EntityBase
   {
@@ -19,19 +14,7 @@ namespace EfRepositorySample.Data
     /// <param name="entity">An object that represents an entity to copy.</param>
     /// <returns>An object that represents an instance of an entity copy.</returns>
     /// <exception cref="System.NotSupportedException">Throws if there is no such entity.</exception>
-    public static EntityBase Create(object entity)
-    {
-      if (entity is IAuthorEntity authorEntity)
-      {
-        return new AuthorEntity(authorEntity);
-      }
-
-      if (entity is IBookEntity bookEntity)
-      {
-        return new BookEntity(bookEntity);
-      }
-
-      throw new NotSupportedException("Unsupported entity type.");
-    }
+    public static T2 Create<T1, T2>(T1 entity) where T2 : EntityBase, T1
+      => (T2)Activator.CreateInstance(typeof(T2), entity)!;
   }
 }

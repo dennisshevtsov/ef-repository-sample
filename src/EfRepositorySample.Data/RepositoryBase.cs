@@ -9,8 +9,8 @@ namespace EfRepositorySample.Data
   /// <summary>Provides a simple API to persistence of an entity.</summary>
   public abstract class RepositoryBase<TEntityImpl, TEntity, TIdentity> : IRepository<TEntity, TIdentity>
     where TEntityImpl : EntityBase, TEntity
-    where TEntity : class
-    where TIdentity : class
+    where TEntity     : class, TIdentity
+    where TIdentity   : class
   {
     /// <summary>Initializes a new instance of the <see cref="RepositoryBase{TEntity, TIdentity}"/> class.</summary>
     /// <param name="dbContext">An object that represents a session with the database and can be used to query and save instances of your entities.</param>
@@ -28,7 +28,7 @@ namespace EfRepositorySample.Data
     /// <returns>An object that represents an asynchronous operation that produces a result at some time in the future.</returns>
     public async Task<TEntity?> GetAsync(TIdentity identity, CancellationToken cancellationToken)
     {
-      var id = EntityBase.Create(identity).Id;
+      var id = EntityBase.Create<TIdentity, TEntityImpl>(identity).Id;
 
       return await DbContext.Set<TEntityImpl>()
                             .AsNoTracking()
@@ -42,7 +42,7 @@ namespace EfRepositorySample.Data
     /// <returns>An object that represents an asynchronous operation that produces a result at some time in the future.</returns>
     public async Task<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken)
     {
-      var dbEntity = (TEntityImpl)EntityBase.Create(entity);
+      var dbEntity = EntityBase.Create<TEntity, TEntityImpl>(entity);
       var dbEntityEntry = DbContext.Entry(dbEntity);
 
       dbEntityEntry.State = EntityState.Added;
@@ -59,7 +59,7 @@ namespace EfRepositorySample.Data
     /// <returns>An object that represents an asynchronous operation.</returns>
     public async Task UpdateAsync(TEntity entity, IEnumerable<string> properties, CancellationToken cancellationToken)
     {
-      var dbEntity = (TEntityImpl)EntityBase.Create(entity);
+      var dbEntity = EntityBase.Create<TEntity, TEntityImpl>(entity);
       var dbEntityEntry = DbContext.Entry(dbEntity);
 
       dbEntityEntry.State = EntityState.Unchanged;
@@ -84,7 +84,7 @@ namespace EfRepositorySample.Data
     /// <returns>An object that represents an asynchronous operation.</returns>
     public Task DeleteAsync(TIdentity identity, CancellationToken cancellationToken)
     {
-      var id = EntityBase.Create(identity).Id;
+      var id = EntityBase.Create<TIdentity, TEntityImpl>(identity).Id;
 
       return DbContext.Set<TEntityImpl>()
                       .Where(entity => entity.Id == id)

@@ -57,9 +57,25 @@ namespace EfRepositorySample.Data
     /// <param name="properties">An object that represents a collection of properties to update.</param>
     /// <param name="cancellationToken">An object that propagates notification that operations should be canceled.</param>
     /// <returns>An object that represents an asynchronous operation.</returns>
-    public Task UpdateAsync(TEntity entity, IEnumerable<string> properties, CancellationToken cancellationToken)
+    public async Task UpdateAsync(TEntity entity, IEnumerable<string> properties, CancellationToken cancellationToken)
     {
-      throw new NotImplementedException();
+      var dbEntity = (TEntityImpl)EntityBase.Create(entity);
+      var dbEntityEntry = DbContext.Entry(dbEntity);
+
+      dbEntityEntry.State = EntityState.Unchanged;
+
+      var propertyHash = properties.ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+      foreach (var property in dbEntityEntry.Properties)
+      {
+        if (propertyHash.Contains(property.Metadata.Name))
+        {
+          property.IsModified = true;
+        }
+      }
+
+      await DbContext.SaveChangesAsync(cancellationToken);
+      dbEntityEntry.State = EntityState.Detached;
     }
 
     /// <summary>Deletes an entity.</summary>

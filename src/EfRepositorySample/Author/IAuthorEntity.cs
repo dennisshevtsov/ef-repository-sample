@@ -11,6 +11,6 @@ namespace EfRepositorySample.Author
     public string Name { get; }
 
     /// <summary>Gets an object that represents a bio of an author.</summary>
-    public string Bio { get; set; }
+    public string Bio { get; }
   }
 }

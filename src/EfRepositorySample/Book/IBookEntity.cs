@@ -14,6 +14,6 @@ namespace EfRepositorySample.Book
     public string Description { get; }
 
     /// <summary>Gets an object that represents a number of pages of a book.</summary>
-    public int Pages { get; set; }
+    public int Pages { get; }
   }
 }

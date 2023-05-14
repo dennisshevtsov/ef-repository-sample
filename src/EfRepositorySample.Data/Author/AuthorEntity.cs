@@ -17,12 +17,18 @@ namespace EfRepositorySample.Data.Author
     }
 
     /// <summary>Initializes a new instance of the <see cref="EfRepositorySample.Data.Author.AuthorEntity"/> class.</summary>
-    /// <param name="authorEntity">An object that represents an author entity.</param>
-    public AuthorEntity(IAuthorEntity authorEntity) : this()
+    /// <param name="authorIdentity">An object that represents an author identity.</param>
+    public AuthorEntity(IAuthorIdentity authorIdentity) : this()
     {
-      AuthorId = authorEntity.AuthorId;
-      Name     = authorEntity.Name;
-      Bio      = authorEntity.Bio;
+      AuthorId = authorIdentity.AuthorId;
+    }
+
+    /// <summary>Initializes a new instance of the <see cref="EfRepositorySample.Data.Author.AuthorEntity"/> class.</summary>
+    /// <param name="authorEntity">An object that represents an author entity.</param>
+    public AuthorEntity(IAuthorEntity authorEntity) : this((IAuthorIdentity)authorEntity)
+    {
+      Name = authorEntity.Name;
+      Bio  = authorEntity.Bio;
     }
 
     /// <summary>Gets an object that represents an ID of an author.</summary>

@@ -36,5 +36,27 @@ namespace EfRepositorySample.Test
       Assert.AreEqual(controlAuthorEntity.Name, actualAuthorEntity.Name);
       Assert.AreEqual(controlAuthorEntity.Bio, actualAuthorEntity.Bio);
     }
+
+    [TestMethod]
+    public async Task AddAsync_AuthorEntityPassed_AuthorEntitySaved()
+    {
+      var controlAuthorEntity = new TestAuthorEntity(
+        Guid.NewGuid().ToString(), Guid.NewGuid().ToString());
+
+      var actualAuthorEntity =
+        await _authorRepository.AddAsync(controlAuthorEntity, CancellationToken.None);
+
+      Assert.IsNotNull(actualAuthorEntity);
+
+      var dbAuthorEntity =
+        await DbContext.Set<AuthorEntity>()
+                       .AsNoTracking()
+                       .Where(entity => entity.Id == actualAuthorEntity.AuthorId)
+                       .FirstOrDefaultAsync();
+
+      Assert.IsNotNull(dbAuthorEntity);
+      Assert.AreEqual(controlAuthorEntity.Name, dbAuthorEntity.Name);
+      Assert.AreEqual(controlAuthorEntity.Bio, dbAuthorEntity.Bio);
+    }
   }
 }

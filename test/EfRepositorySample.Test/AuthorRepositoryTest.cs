@@ -4,9 +4,11 @@
 
 namespace EfRepositorySample.Test
 {
+  using Microsoft.EntityFrameworkCore;
   using Microsoft.Extensions.DependencyInjection;
 
   using EfRepositorySample.Author;
+  using EfRepositorySample.Data.Author;
 
   [TestClass]
   public sealed class AuthorRepositoryTest : IntegrationTestBase
@@ -18,6 +20,21 @@ namespace EfRepositorySample.Test
     protected override void Initialize(IServiceProvider provider)
     {
       _authorRepository = provider.GetRequiredService<IAuthorRepository>();
+    }
+
+    [TestMethod]
+    public async Task AddAsync_AuthorEntityPassed_SavedAuthorEntityReturned()
+    {
+      var controlAuthorEntity = new TestAuthorEntity(
+        Guid.NewGuid().ToString(), Guid.NewGuid().ToString());
+
+      var actualAuthorEntity =
+        await _authorRepository.AddAsync(controlAuthorEntity, CancellationToken.None);
+
+      Assert.IsNotNull(actualAuthorEntity);
+      Assert.IsTrue(actualAuthorEntity.AuthorId != default);
+      Assert.AreEqual(controlAuthorEntity.Name, actualAuthorEntity.Name);
+      Assert.AreEqual(controlAuthorEntity.Bio, actualAuthorEntity.Bio);
     }
   }
 }

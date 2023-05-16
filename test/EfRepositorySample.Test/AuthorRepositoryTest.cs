@@ -110,6 +110,22 @@ namespace EfRepositorySample.Test
       Assert.AreEqual(updatingAuthorEntity.Bio, actualAuthorEntity.Bio);
     }
 
+    [TestMethod]
+    public async Task DeleteAsync_AuthorPassed_AuthorDeleted()
+    {
+      var controlAuthorEntity = await CreateAuthorAsync();
+
+      await _authorRepository.DeleteAsync(controlAuthorEntity, CancellationToken.None);
+
+      var actualAuthorEntity =
+        await DbContext.Set<AuthorEntity>()
+                       .AsNoTracking()
+                       .Where(entity => entity.Id == controlAuthorEntity.AuthorId)
+                       .SingleOrDefaultAsync();
+
+      Assert.IsNull(actualAuthorEntity);
+    }
+
     private async Task<IAuthorEntity> CreateAuthorAsync()
     {
       var testAuthorEntity = new TestAuthorEntity(Guid.NewGuid().ToString(), Guid.NewGuid().ToString());

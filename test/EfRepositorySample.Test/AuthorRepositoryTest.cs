@@ -23,6 +23,17 @@ namespace EfRepositorySample.Test
     }
 
     [TestMethod]
+    public async Task GetAsync_UnknownAuthorId_NullReturned()
+    {
+      var controlAuthorIdentity = new TestAuthorIdentity(Guid.NewGuid());
+
+      var actualAuthorEntity =
+        await _authorRepository.GetAsync(controlAuthorIdentity, CancellationToken.None);
+
+      Assert.IsNull(actualAuthorEntity);
+    }
+
+    [TestMethod]
     public async Task AddAsync_AuthorEntityPassed_SavedAuthorEntityReturned()
     {
       var controlAuthorEntity = new TestAuthorEntity(

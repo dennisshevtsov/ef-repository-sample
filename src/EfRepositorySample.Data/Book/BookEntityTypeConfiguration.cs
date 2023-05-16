@@ -14,7 +14,7 @@ namespace EfRepositorySample.Data.Book
     /// <param name="builder">An object that provides a simple API for configuring an <see cref="Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType" />.</param>
     public void Configure(EntityTypeBuilder<BookEntity> builder)
     {
-      builder.ToTable("author");
+      builder.ToTable("boock");
       builder.HasKey(entity => entity.Id);
 
       builder.Property(entity => entity.Id)

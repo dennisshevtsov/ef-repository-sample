@@ -34,7 +34,21 @@ namespace EfRepositorySample.Test
     }
 
     [TestMethod]
-    public async Task AddAsync_AuthorEntityPassed_SavedAuthorEntityReturned()
+    public async Task GetAsync_ExistingAuthorId_AuthorReturned()
+    {
+      var controlAuthorEntity = await CreateAuthorAsync();
+
+      var actualAuthorEntity =
+        await _authorRepository.GetAsync(controlAuthorEntity, CancellationToken.None);
+
+      Assert.IsNotNull(actualAuthorEntity);
+      Assert.AreEqual(controlAuthorEntity.AuthorId, actualAuthorEntity.AuthorId);
+      Assert.AreEqual(controlAuthorEntity.Name, actualAuthorEntity.Name);
+      Assert.AreEqual(controlAuthorEntity.Bio, actualAuthorEntity.Bio);
+    }
+
+    [TestMethod]
+    public async Task AddAsync_AuthorPassed_SavedAuthorReturned()
     {
       var controlAuthorEntity = new TestAuthorEntity(
         Guid.NewGuid().ToString(), Guid.NewGuid().ToString());
@@ -49,7 +63,7 @@ namespace EfRepositorySample.Test
     }
 
     [TestMethod]
-    public async Task AddAsync_AuthorEntityPassed_AuthorEntitySaved()
+    public async Task AddAsync_AuthorPassed_AuthorSaved()
     {
       var controlAuthorEntity = new TestAuthorEntity(
         Guid.NewGuid().ToString(), Guid.NewGuid().ToString());
@@ -68,6 +82,18 @@ namespace EfRepositorySample.Test
       Assert.IsNotNull(dbAuthorEntity);
       Assert.AreEqual(controlAuthorEntity.Name, dbAuthorEntity.Name);
       Assert.AreEqual(controlAuthorEntity.Bio, dbAuthorEntity.Bio);
+    }
+
+    private async Task<IAuthorEntity> CreateAuthorAsync()
+    {
+      var testAuthorEntity = new TestAuthorEntity(Guid.NewGuid().ToString(), Guid.NewGuid().ToString());
+      var dataAuthorEntity = new AuthorEntity(testAuthorEntity);
+
+      var dataAuthorEntityEntry = DbContext.Add(dataAuthorEntity);
+      await DbContext.SaveChangesAsync();
+      dataAuthorEntityEntry.State = EntityState.Detached;
+
+      return dataAuthorEntity;
     }
   }
 }

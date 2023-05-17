@@ -4,10 +4,11 @@
 
 namespace EfRepositorySample.Test.Book
 {
+  using Microsoft.EntityFrameworkCore;
   using Microsoft.Extensions.DependencyInjection;
 
   using EfRepositorySample.Book;
-  using EfRepositorySample.Test.Author;
+  using EfRepositorySample.Data.Book;
 
   [TestClass]
   public sealed class BookRepositoryTest : IntegrationTestBase
@@ -30,6 +31,33 @@ namespace EfRepositorySample.Test.Book
         await _bookRepository.GetAsync(controlBookIdentity, CancellationToken.None);
 
       Assert.IsNull(actualBookEntity);
+    }
+
+    [TestMethod]
+    public async Task GetAsync_ExistingBookId_BookReturned()
+    {
+      var controlBookEntity = await CreateBookAsync();
+
+      var actualBookEntity =
+        await _bookRepository.GetAsync(controlBookEntity, CancellationToken.None);
+
+      Assert.IsNotNull(actualBookEntity);
+      Assert.AreEqual(controlBookEntity.BookId, actualBookEntity.BookId);
+      Assert.AreEqual(controlBookEntity.Title, actualBookEntity.Title);
+      Assert.AreEqual(controlBookEntity.Description, actualBookEntity.Description);
+      Assert.AreEqual(controlBookEntity.Pages, actualBookEntity.Pages);
+    }
+
+    private async Task<IBookEntity> CreateBookAsync()
+    {
+      var testBookEntity = new TestBookEntity(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), 500);
+      var dataBookEntity = new BookEntity(testBookEntity);
+
+      var dataBookEntityEntry = DbContext.Add(dataBookEntity);
+      await DbContext.SaveChangesAsync();
+      dataBookEntityEntry.State = EntityState.Detached;
+
+      return dataBookEntity;
     }
   }
 }

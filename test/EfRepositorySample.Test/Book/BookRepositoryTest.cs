@@ -15,6 +15,7 @@ namespace EfRepositorySample.Test.Book
   using EfRepositorySample.Book;
   using EfRepositorySample.Data.Book;
   using EfRepositorySample.Test.Book;
+  using EfRepositorySample.Data.Book;
 
   [TestClass]
   public sealed class BookRepositoryTest : IntegrationTestBase
@@ -119,6 +120,22 @@ namespace EfRepositorySample.Test.Book
       Assert.AreEqual(updatingBookEntity.Title, actualBookEntity.Title);
       Assert.AreEqual(updatingBookEntity.Description, actualBookEntity.Description);
       Assert.AreEqual(updatingBookEntity.Pages, actualBookEntity.Pages);
+    }
+
+    [TestMethod]
+    public async Task DeleteAsync_BookPassed_BookDeleted()
+    {
+      var controlBookEntity = await CreateBookAsync();
+
+      await _bookRepository.DeleteAsync(controlBookEntity, CancellationToken.None);
+
+      var actualBookEntity =
+        await DbContext.Set<BookEntity>()
+                       .AsNoTracking()
+                       .Where(entity => entity.Id == controlBookEntity.BookId)
+                       .SingleOrDefaultAsync();
+
+      Assert.IsNull(actualBookEntity);
     }
 
     private async Task<IBookEntity> CreateBookAsync()

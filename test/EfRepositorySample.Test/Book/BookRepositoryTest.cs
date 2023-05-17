@@ -9,6 +9,7 @@ namespace EfRepositorySample.Test.Book
 
   using EfRepositorySample.Book;
   using EfRepositorySample.Data.Book;
+  using EfRepositorySample.Test.Book;
 
   [TestClass]
   public sealed class BookRepositoryTest : IntegrationTestBase
@@ -43,6 +44,22 @@ namespace EfRepositorySample.Test.Book
 
       Assert.IsNotNull(actualBookEntity);
       Assert.AreEqual(controlBookEntity.BookId, actualBookEntity.BookId);
+      Assert.AreEqual(controlBookEntity.Title, actualBookEntity.Title);
+      Assert.AreEqual(controlBookEntity.Description, actualBookEntity.Description);
+      Assert.AreEqual(controlBookEntity.Pages, actualBookEntity.Pages);
+    }
+
+    [TestMethod]
+    public async Task AddAsync_BookPassed_SavedBookReturned()
+    {
+      var controlBookEntity = new TestBookEntity(
+        Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), 500);
+
+      var actualBookEntity =
+        await _bookRepository.AddAsync(controlBookEntity, CancellationToken.None);
+
+      Assert.IsNotNull(actualBookEntity);
+      Assert.IsTrue(actualBookEntity.BookId != default);
       Assert.AreEqual(controlBookEntity.Title, actualBookEntity.Title);
       Assert.AreEqual(controlBookEntity.Description, actualBookEntity.Description);
       Assert.AreEqual(controlBookEntity.Pages, actualBookEntity.Pages);

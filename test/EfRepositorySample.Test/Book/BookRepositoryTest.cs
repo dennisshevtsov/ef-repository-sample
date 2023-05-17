@@ -7,6 +7,7 @@ namespace EfRepositorySample.Test.Book
   using Microsoft.Extensions.DependencyInjection;
 
   using EfRepositorySample.Book;
+  using EfRepositorySample.Test.Author;
 
   [TestClass]
   public sealed class BookRepositoryTest : IntegrationTestBase
@@ -18,6 +19,17 @@ namespace EfRepositorySample.Test.Book
     protected override void Initialize(IServiceProvider provider)
     {
       _bookRepository = provider.GetRequiredService<IBookRepository>();
+    }
+
+    [TestMethod]
+    public async Task GetAsync_UnknownBookId_NullReturned()
+    {
+      var controlBookIdentity = new TestBookIdentity(Guid.NewGuid());
+
+      var actualBookEntity =
+        await _bookRepository.GetAsync(controlBookIdentity, CancellationToken.None);
+
+      Assert.IsNull(actualBookEntity);
     }
   }
 }

@@ -12,6 +12,9 @@ namespace EfRepositorySample.Test.Book
   using EfRepositorySample.Test.Book;
   using EfRepositorySample.Data.Book;
   using EfRepositorySample.Test.Book;
+  using EfRepositorySample.Book;
+  using EfRepositorySample.Data.Book;
+  using EfRepositorySample.Test.Book;
 
   [TestClass]
   public sealed class BookRepositoryTest : IntegrationTestBase
@@ -88,6 +91,34 @@ namespace EfRepositorySample.Test.Book
       Assert.AreEqual(controlBookEntity.Title, dbBookEntity.Title);
       Assert.AreEqual(controlBookEntity.Description, dbBookEntity.Description);
       Assert.AreEqual(controlBookEntity.Pages, dbBookEntity.Pages);
+    }
+
+    [TestMethod]
+    public async Task UpdateAsync_BookPassed_BookUpdated()
+    {
+      var originalBookEntity = await CreateBookAsync();
+      var updatingBookEntity = new TestBookEntity(
+        originalBookEntity.BookId, Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), 800);
+      var updatingProperties = new[]
+      {
+        nameof(IBookEntity.Title),
+        nameof(IBookEntity.Description),
+        nameof(IBookEntity.Pages),
+      };
+
+      await _bookRepository.UpdateAsync(updatingBookEntity, updatingProperties, CancellationToken.None);
+
+      var actualBookEntity =
+        await DbContext.Set<BookEntity>()
+                       .AsNoTracking()
+                       .Where(entity => entity.Id == updatingBookEntity.BookId)
+                       .SingleOrDefaultAsync();
+
+      Assert.IsNotNull(actualBookEntity);
+      Assert.AreEqual(updatingBookEntity.BookId, actualBookEntity.BookId);
+      Assert.AreEqual(updatingBookEntity.Title, actualBookEntity.Title);
+      Assert.AreEqual(updatingBookEntity.Description, actualBookEntity.Description);
+      Assert.AreEqual(updatingBookEntity.Pages, actualBookEntity.Pages);
     }
 
     private async Task<IBookEntity> CreateBookAsync()

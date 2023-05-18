@@ -9,13 +9,7 @@ namespace EfRepositorySample.Test.Book
 
   using EfRepositorySample.Book;
   using EfRepositorySample.Data.Book;
-  using EfRepositorySample.Test.Book;
-  using EfRepositorySample.Data.Book;
-  using EfRepositorySample.Test.Book;
-  using EfRepositorySample.Book;
-  using EfRepositorySample.Data.Book;
-  using EfRepositorySample.Test.Book;
-  using EfRepositorySample.Data.Book;
+  using EfRepositorySample.Author;
 
   [TestClass]
   public sealed class BookRepositoryTest : IntegrationTestBase
@@ -59,7 +53,10 @@ namespace EfRepositorySample.Test.Book
     public async Task AddAsync_BookPassed_SavedBookReturned()
     {
       var controlBookEntity = new TestBookEntity(
-        Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), 500);
+        Guid.NewGuid().ToString(),
+        Guid.NewGuid().ToString(),
+        500,
+        new List<IAuthorEntity>());
 
       var actualBookEntity =
         await _bookRepository.AddAsync(controlBookEntity, CancellationToken.None);
@@ -75,7 +72,10 @@ namespace EfRepositorySample.Test.Book
     public async Task AddAsync_BookPassed_BookSaved()
     {
       var controlBookEntity = new TestBookEntity(
-        Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), 500);
+        Guid.NewGuid().ToString(),
+        Guid.NewGuid().ToString(),
+        500,
+        new List<IAuthorEntity>());
 
       var actualBookEntity =
         await _bookRepository.AddAsync(controlBookEntity, CancellationToken.None);
@@ -99,7 +99,11 @@ namespace EfRepositorySample.Test.Book
     {
       var originalBookEntity = await CreateBookAsync();
       var updatingBookEntity = new TestBookEntity(
-        originalBookEntity.BookId, Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), 800);
+        originalBookEntity.BookId,
+        Guid.NewGuid().ToString(),
+        Guid.NewGuid().ToString(),
+        800,
+        new List<IAuthorEntity>());
       var updatingProperties = new[]
       {
         nameof(IBookEntity.Title),
@@ -140,7 +144,11 @@ namespace EfRepositorySample.Test.Book
 
     private async Task<IBookEntity> CreateBookAsync()
     {
-      var testBookEntity = new TestBookEntity(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), 500);
+      var testBookEntity = new TestBookEntity(
+        Guid.NewGuid().ToString(),
+        Guid.NewGuid().ToString(),
+        500,
+        new List<IAuthorEntity>());
       var dataBookEntity = new BookEntity(testBookEntity);
 
       var dataBookEntityEntry = DbContext.Add(dataBookEntity);

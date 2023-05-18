@@ -9,6 +9,7 @@ namespace EfRepositorySample.Test.Author
 
   using EfRepositorySample.Author;
   using EfRepositorySample.Data.Author;
+  using EfRepositorySample.Book;
 
   [TestClass]
   public sealed class AuthorRepositoryTest : IntegrationTestBase
@@ -51,7 +52,9 @@ namespace EfRepositorySample.Test.Author
     public async Task AddAsync_AuthorPassed_SavedAuthorReturned()
     {
       var controlAuthorEntity = new TestAuthorEntity(
-        Guid.NewGuid().ToString(), Guid.NewGuid().ToString());
+        Guid.NewGuid().ToString(),
+        Guid.NewGuid().ToString(),
+        new List<IBookEntity>());
 
       var actualAuthorEntity =
         await _authorRepository.AddAsync(controlAuthorEntity, CancellationToken.None);
@@ -66,7 +69,9 @@ namespace EfRepositorySample.Test.Author
     public async Task AddAsync_AuthorPassed_AuthorSaved()
     {
       var controlAuthorEntity = new TestAuthorEntity(
-        Guid.NewGuid().ToString(), Guid.NewGuid().ToString());
+        Guid.NewGuid().ToString(),
+        Guid.NewGuid().ToString(),
+        new List<IBookEntity>());
 
       var actualAuthorEntity =
         await _authorRepository.AddAsync(controlAuthorEntity, CancellationToken.None);
@@ -89,7 +94,10 @@ namespace EfRepositorySample.Test.Author
     {
       var originalAuthorEntity = await CreateAuthorAsync();
       var updatingAuthorEntity = new TestAuthorEntity(
-        originalAuthorEntity.AuthorId, Guid.NewGuid().ToString(), Guid.NewGuid().ToString());
+        originalAuthorEntity.AuthorId,
+        Guid.NewGuid().ToString(),
+        Guid.NewGuid().ToString(),
+        new List<IBookEntity>());
       var updatingProperties = new[]
       {
         nameof(IAuthorEntity.Name),
@@ -128,7 +136,10 @@ namespace EfRepositorySample.Test.Author
 
     private async Task<IAuthorEntity> CreateAuthorAsync()
     {
-      var testAuthorEntity = new TestAuthorEntity(Guid.NewGuid().ToString(), Guid.NewGuid().ToString());
+      var testAuthorEntity = new TestAuthorEntity(
+        Guid.NewGuid().ToString(),
+        Guid.NewGuid().ToString(),
+        new List<IBookEntity>());
       var dataAuthorEntity = new AuthorEntity(testAuthorEntity);
 
       var dataAuthorEntityEntry = DbContext.Add(dataAuthorEntity);

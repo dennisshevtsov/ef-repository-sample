@@ -4,6 +4,8 @@
 
 namespace EfRepositorySample.Author
 {
+  using EfRepositorySample.Book;
+
   /// <summary>Represents an author entity.</summary>
   public interface IAuthorEntity : IAuthorIdentity
   {
@@ -12,5 +14,8 @@ namespace EfRepositorySample.Author
 
     /// <summary>Gets an object that represents a bio of an author.</summary>
     public string Bio { get; }
+
+    /// <summary>Gets an object that represents a collection of this author's books.</summary>
+    public IEnumerable<IBookEntity> Books { get; }
   }
 }

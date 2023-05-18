@@ -35,7 +35,11 @@ namespace EfRepositorySample.Data.Book
              .HasColumnName("pages")
              .IsRequired();
 
+      builder.HasMany(entity => entity.BookAuthors)
+             .WithMany(entity => entity.AuthorBooks);
+
       builder.Ignore(entity => entity.BookId);
+      builder.Ignore(entity => entity.Authors);
     }
   }
 }

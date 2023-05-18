@@ -31,7 +31,23 @@ namespace EfRepositorySample.Data.Author
              .IsRequired()
              .HasMaxLength(255);
 
+      builder.HasMany(entity => entity.AuthorBooks)
+             .WithMany(entity => entity.BookAuthors)
+             .UsingEntity<AuthorBookRelationEntity>(
+               "author_book",
+               builder =>
+               {
+                 builder.Property(entity => entity.AuthorId)
+                        .HasColumnName("author_id")
+                        .IsRequired();
+
+                 builder.Property(entity => entity.BookId)
+                        .HasColumnName("book_id")
+                        .IsRequired();
+               });
+
       builder.Ignore(entity => entity.AuthorId);
+      builder.Ignore(entity => entity.Books);
     }
   }
 }

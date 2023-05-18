@@ -5,6 +5,8 @@
 namespace EfRepositorySample.Data.Author
 {
   using EfRepositorySample.Author;
+  using EfRepositorySample.Book;
+  using EfRepositorySample.Data.Book;
 
   /// <summary>Represents an author entity.</summary>
   public sealed class AuthorEntity : EntityBase, IAuthorEntity
@@ -12,8 +14,9 @@ namespace EfRepositorySample.Data.Author
     /// <summary>Initializes a new instance of the <see cref="EfRepositorySample.Data.Author.AuthorEntity"/> class.</summary>
     public AuthorEntity()
     {
-      Name = string.Empty;
-      Bio  = string.Empty;
+      Name  = string.Empty;
+      Bio   = string.Empty;
+      Books = new List<BookEntity>();
     }
 
     /// <summary>Initializes a new instance of the <see cref="EfRepositorySample.Data.Author.AuthorEntity"/> class.</summary>
@@ -27,8 +30,9 @@ namespace EfRepositorySample.Data.Author
     /// <param name="authorEntity">An object that represents an author entity.</param>
     public AuthorEntity(IAuthorEntity authorEntity) : this((IAuthorIdentity)authorEntity)
     {
-      Name = authorEntity.Name;
-      Bio  = authorEntity.Bio;
+      Name  = authorEntity.Name;
+      Bio   = authorEntity.Bio;
+      Books = authorEntity.Books.Select(entity => new BookEntity(entity)).ToList();
     }
 
     /// <summary>Gets an object that represents an ID of an author.</summary>
@@ -39,5 +43,8 @@ namespace EfRepositorySample.Data.Author
 
     /// <summary>Gets an object that represents a bio of an author.</summary>
     public string Bio { get; }
+
+    /// <summary>Gets an object that represents a collection of this author's books.</summary>
+    public IEnumerable<IBookEntity> Books { get; }
   }
 }

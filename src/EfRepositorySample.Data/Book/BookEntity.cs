@@ -4,7 +4,9 @@
 
 namespace EfRepositorySample.Data.Book
 {
+  using EfRepositorySample.Author;
   using EfRepositorySample.Book;
+  using EfRepositorySample.Data.Author;
 
   /// <summary>Represents a book entity.</summary>
   public sealed class BookEntity : EntityBase, IBookEntity
@@ -14,6 +16,7 @@ namespace EfRepositorySample.Data.Book
     {
       Title       = string.Empty;
       Description = string.Empty;
+      Authors     = new List<AuthorEntity>();
     }
 
     /// <summary>Initializes a new instance of the <see cref="EfRepositorySample.Data.Book.BookEntity"/> class.</summary>
@@ -30,6 +33,7 @@ namespace EfRepositorySample.Data.Book
       Title       = bookEntity.Title;
       Description = bookEntity.Description;
       Pages       = bookEntity.Pages;
+      Authors     = bookEntity.Authors.Select(entity => new AuthorEntity(entity)).ToList();
     }
 
     /// <summary>Gets an object that represents an ID of a book.</summary>
@@ -43,5 +47,8 @@ namespace EfRepositorySample.Data.Book
 
     /// <summary>Gets an object that represents a number of pages of a book.</summary>
     public int Pages { get; }
+
+    /// <summary>Gets an object that represents a collection of authors of this book.</summary>
+    public IEnumerable<IAuthorEntity> Authors { get; }
   }
 }

@@ -5,16 +5,19 @@
 namespace EfRepositorySample.Test.Author
 {
   using EfRepositorySample.Author;
+  using EfRepositorySample.Book;
 
   public sealed class TestAuthorEntity : IAuthorEntity
   {
-    public TestAuthorEntity(string name, string bio)
+    public TestAuthorEntity(string name, string bio, IEnumerable<IBookEntity> books)
     {
-      Name = name ?? throw new ArgumentNullException(nameof(name));
-      Bio = bio ?? throw new ArgumentNullException(nameof(bio));
+      Name  = name;
+      Bio   = bio;
+      Books = books;
     }
 
-    public TestAuthorEntity(Guid authorId, string name, string bio) : this(name, bio)
+    public TestAuthorEntity(Guid authorId, string name, string bio, IEnumerable<IBookEntity> books)
+      : this(name, bio, books)
     {
       AuthorId = authorId;
     }
@@ -24,5 +27,7 @@ namespace EfRepositorySample.Test.Author
     public string Name { get; }
 
     public string Bio { get; }
+
+    public IEnumerable<IBookEntity> Books { get; }
   }
 }

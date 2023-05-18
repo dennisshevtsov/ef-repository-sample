@@ -31,6 +31,9 @@ namespace EfRepositorySample.Data.Author
              .IsRequired()
              .HasMaxLength(255);
 
+      builder.HasMany(entity => entity.AuthorBooks)
+             .WithMany(entity => entity.BookAuthors);
+
       builder.Ignore(entity => entity.AuthorId);
       builder.Ignore(entity => entity.Books);
     }

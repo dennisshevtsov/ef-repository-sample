@@ -14,9 +14,9 @@ namespace EfRepositorySample.Data.Author
     /// <summary>Initializes a new instance of the <see cref="EfRepositorySample.Data.Author.AuthorEntity"/> class.</summary>
     public AuthorEntity()
     {
-      Name  = string.Empty;
-      Bio   = string.Empty;
-      Books = new List<BookEntity>();
+      Name        = string.Empty;
+      Bio         = string.Empty;
+      AuthorBooks = new List<BookEntity>();
     }
 
     /// <summary>Initializes a new instance of the <see cref="EfRepositorySample.Data.Author.AuthorEntity"/> class.</summary>
@@ -30,9 +30,9 @@ namespace EfRepositorySample.Data.Author
     /// <param name="authorEntity">An object that represents an author entity.</param>
     public AuthorEntity(IAuthorEntity authorEntity) : this((IAuthorIdentity)authorEntity)
     {
-      Name  = authorEntity.Name;
-      Bio   = authorEntity.Bio;
-      Books = BookEntity.Copy(authorEntity.Books);
+      Name        = authorEntity.Name;
+      Bio         = authorEntity.Bio;
+      AuthorBooks = BookEntity.Copy(authorEntity.Books);
     }
 
     /// <summary>Gets an object that represents an ID of an author.</summary>
@@ -45,12 +45,15 @@ namespace EfRepositorySample.Data.Author
     public string Bio { get; }
 
     /// <summary>Gets an object that represents a collection of this author's books.</summary>
-    public IEnumerable<IBookEntity> Books { get; }
+    public IEnumerable<IBookEntity> Books => AuthorBooks;
+
+    /// <summary>Gets an object that represents a collection of this author's books.</summary>
+    public ICollection<BookEntity> AuthorBooks { get; }
 
     /// <summary>Copies a collection of authors.</summary>
     /// <param name="authors">An object that represents a collection of authors to copy.</param>
     /// <returns>An object that represents a copied collection of authors.</returns>
-    public static IEnumerable<IAuthorEntity> Copy(IEnumerable<IAuthorEntity> authors)
+    public static ICollection<AuthorEntity> Copy(IEnumerable<IAuthorEntity> authors)
       => authors.Select(entity => new AuthorEntity(entity))
                 .ToList();
   }

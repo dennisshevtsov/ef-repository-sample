@@ -32,6 +32,7 @@ namespace EfRepositorySample.Data.Author
              .HasMaxLength(255);
 
       builder.Ignore(entity => entity.AuthorId);
+      builder.Ignore(entity => entity.Books);
     }
   }
 }

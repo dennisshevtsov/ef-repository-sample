@@ -36,6 +36,7 @@ namespace EfRepositorySample.Data.Book
              .IsRequired();
 
       builder.Ignore(entity => entity.BookId);
+      builder.Ignore(entity => entity.Authors);
     }
   }
 }

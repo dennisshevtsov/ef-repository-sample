@@ -33,7 +33,7 @@ namespace EfRepositorySample.Data.Book
       Title       = bookEntity.Title;
       Description = bookEntity.Description;
       Pages       = bookEntity.Pages;
-      Authors     = bookEntity.Authors.Select(entity => new AuthorEntity(entity)).ToList();
+      Authors     = AuthorEntity.Copy(bookEntity.Authors);
     }
 
     /// <summary>Gets an object that represents an ID of a book.</summary>
@@ -50,5 +50,12 @@ namespace EfRepositorySample.Data.Book
 
     /// <summary>Gets an object that represents a collection of authors of this book.</summary>
     public IEnumerable<IAuthorEntity> Authors { get; }
+
+    /// <summary>Copies a collection of books.</summary>
+    /// <param name="books">An object that represents a collection of books to copy.</param>
+    /// <returns>An object that represents a copied collection of books.</returns>
+    public static IEnumerable<IBookEntity> Copy(IEnumerable<IBookEntity> books)
+      => books.Select(entity => new BookEntity(entity))
+              .ToList();
   }
 }

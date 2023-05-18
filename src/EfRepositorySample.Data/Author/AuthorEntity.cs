@@ -32,7 +32,7 @@ namespace EfRepositorySample.Data.Author
     {
       Name  = authorEntity.Name;
       Bio   = authorEntity.Bio;
-      Books = authorEntity.Books.Select(entity => new BookEntity(entity)).ToList();
+      Books = BookEntity.Copy(authorEntity.Books);
     }
 
     /// <summary>Gets an object that represents an ID of an author.</summary>
@@ -46,5 +46,12 @@ namespace EfRepositorySample.Data.Author
 
     /// <summary>Gets an object that represents a collection of this author's books.</summary>
     public IEnumerable<IBookEntity> Books { get; }
+
+    /// <summary>Copies a collection of authors.</summary>
+    /// <param name="authors">An object that represents a collection of authors to copy.</param>
+    /// <returns>An object that represents a copied collection of authors.</returns>
+    public static IEnumerable<IAuthorEntity> Copy(IEnumerable<IAuthorEntity> authors)
+      => authors.Select(entity => new AuthorEntity(entity))
+                .ToList();
   }
 }

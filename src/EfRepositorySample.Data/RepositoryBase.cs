@@ -46,6 +46,18 @@ namespace EfRepositorySample.Data
       var dbEntityEntry = DbContext.Entry(dbEntity);
 
       dbEntityEntry.State = EntityState.Added;
+
+      foreach (var collectionEntry in dbEntityEntry.Collections)
+      {
+        if (collectionEntry.CurrentValue != null)
+        {
+          foreach (var collectionItemEntity in collectionEntry.CurrentValue)
+          {
+            DbContext.Entry(collectionItemEntity).State = EntityState.Unchanged;
+          }
+        }
+      }
+
       await DbContext.SaveChangesAsync(cancellationToken);
       dbEntityEntry.State = EntityState.Detached;
 

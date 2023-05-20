@@ -8,8 +8,10 @@ namespace EfRepositorySample.Test.Author
   using Microsoft.Extensions.DependencyInjection;
 
   using EfRepositorySample.Author;
-  using EfRepositorySample.Data.Author;
   using EfRepositorySample.Book;
+  using EfRepositorySample.Data.Author;
+  using EfRepositorySample.Data.Book;
+  using EfRepositorySample.Test.Book;
 
   [TestClass]
   public sealed class AuthorRepositoryTest : IntegrationTestBase
@@ -71,7 +73,7 @@ namespace EfRepositorySample.Test.Author
       var controlAuthorEntity = new TestAuthorEntity(
         Guid.NewGuid().ToString(),
         Guid.NewGuid().ToString(),
-        new List<IBookEntity>());
+        await CreateBooksAsync(5));
 
       var actualAuthorEntity =
         await _authorRepository.AddAsync(controlAuthorEntity, CancellationToken.None);
@@ -81,12 +83,14 @@ namespace EfRepositorySample.Test.Author
       var dbAuthorEntity =
         await DbContext.Set<AuthorEntity>()
                        .AsNoTracking()
+                       .Include(entity => entity.AuthorBooks)
                        .Where(entity => entity.Id == actualAuthorEntity.AuthorId)
                        .FirstOrDefaultAsync();
 
       Assert.IsNotNull(dbAuthorEntity);
       Assert.AreEqual(controlAuthorEntity.Name, dbAuthorEntity.Name);
-      Assert.AreEqual(controlAuthorEntity.Bio, dbAuthorEntity.Bio);
+      Assert.AreEqual(controlAuthorEntity.Bio , dbAuthorEntity.Bio );
+      AreEqual(controlAuthorEntity.Books, actualAuthorEntity.Books);
     }
 
     [TestMethod]
@@ -147,6 +151,52 @@ namespace EfRepositorySample.Test.Author
       dataAuthorEntityEntry.State = EntityState.Detached;
 
       return dataAuthorEntity;
+    }
+
+    private async Task<IEnumerable<IBookEntity>> CreateBooksAsync(int books)
+    {
+      var bookEntityCollection = new List<BookEntity>();
+
+      for (int i = 0; i < books; i++)
+      {
+        var testBookEntity = TestBookEntity.New(i * 100);
+        var dataBookEntity = new BookEntity(testBookEntity);
+
+        bookEntityCollection.Add(dataBookEntity);
+      }
+
+      DbContext.AddRange(bookEntityCollection);
+      await DbContext.SaveChangesAsync();
+
+      return bookEntityCollection.Select(entity => new TestBookEntity(entity))
+                                 .ToList();
+    }
+
+    private void AreEqual(
+      IEnumerable<IBookEntity> controlBookEntityCollection,
+      IEnumerable<IBookEntity> actualBookEntityCollection)
+    {
+      var controlBookEntityList =
+        controlBookEntityCollection.OrderBy(entity => entity.BookId)
+                                   .ToList();
+      
+      var actualBookEntityList =
+        actualBookEntityCollection.OrderBy(entity => entity.BookId)
+                                  .ToList();
+
+      Assert.AreEqual(controlBookEntityList.Count, actualBookEntityList.Count);
+
+      for (int i = 0; i < controlBookEntityList.Count; i++)
+      {
+        AreEqual(controlBookEntityList[i], actualBookEntityList[i]);
+      }
+    }
+
+    private void AreEqual(IBookEntity control, IBookEntity actual)
+    {
+      Assert.AreEqual(control.Title, actual.Title);
+      Assert.AreEqual(control.Description, actual.Description);
+      Assert.AreEqual(control.Pages, actual.Pages);
     }
   }
 }

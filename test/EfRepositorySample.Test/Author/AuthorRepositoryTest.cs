@@ -75,21 +75,21 @@ namespace EfRepositorySample.Test.Author
         Guid.NewGuid().ToString(),
         await CreateBooksAsync(5));
 
-      var actualAuthorEntity =
+      var savedAuthorEntity =
         await _authorRepository.AddAsync(controlAuthorEntity, CancellationToken.None);
 
-      Assert.IsNotNull(actualAuthorEntity);
+      Assert.IsNotNull(savedAuthorEntity);
 
-      var dbAuthorEntity =
+      var actualAuthorEntity =
         await DbContext.Set<AuthorEntity>()
                        .AsNoTracking()
                        .Include(entity => entity.AuthorBooks)
-                       .Where(entity => entity.Id == actualAuthorEntity.AuthorId)
+                       .Where(entity => entity.Id == savedAuthorEntity.AuthorId)
                        .FirstOrDefaultAsync();
 
-      Assert.IsNotNull(dbAuthorEntity);
-      Assert.AreEqual(controlAuthorEntity.Name, dbAuthorEntity.Name);
-      Assert.AreEqual(controlAuthorEntity.Bio , dbAuthorEntity.Bio );
+      Assert.IsNotNull(actualAuthorEntity);
+      Assert.AreEqual(controlAuthorEntity.Name, actualAuthorEntity.Name);
+      Assert.AreEqual(controlAuthorEntity.Bio , actualAuthorEntity.Bio );
       TestBookEntity.AreEqual(controlAuthorEntity.Books, actualAuthorEntity.Books);
     }
 
@@ -167,6 +167,11 @@ namespace EfRepositorySample.Test.Author
 
       DbContext.AddRange(bookEntityCollection);
       await DbContext.SaveChangesAsync();
+
+      foreach (var dataBookEntity in bookEntityCollection)
+      {
+        DbContext.Entry(dataBookEntity).State = EntityState.Detached;
+      }
 
       return bookEntityCollection.Select(entity => new TestBookEntity(entity))
                                  .ToList();

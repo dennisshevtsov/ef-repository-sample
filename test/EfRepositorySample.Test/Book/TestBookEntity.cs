@@ -48,5 +48,32 @@ namespace EfRepositorySample.Test.Book
       Guid.NewGuid().ToString(),
       pages,
       new List<IAuthorEntity>());
+
+    public static void AreEqual(
+      IEnumerable<IBookEntity> controlBookEntityCollection,
+      IEnumerable<IBookEntity> actualBookEntityCollection)
+    {
+      var controlBookEntityList =
+        controlBookEntityCollection.OrderBy(entity => entity.BookId)
+                                   .ToList();
+
+      var actualBookEntityList =
+        actualBookEntityCollection.OrderBy(entity => entity.BookId)
+                                  .ToList();
+
+      Assert.AreEqual(controlBookEntityList.Count, actualBookEntityList.Count);
+
+      for (int i = 0; i < controlBookEntityList.Count; i++)
+      {
+        TestBookEntity.AreEqual(controlBookEntityList[i], actualBookEntityList[i]);
+      }
+    }
+
+    public static void AreEqual(IBookEntity control, IBookEntity actual)
+    {
+      Assert.AreEqual(control.Title, actual.Title);
+      Assert.AreEqual(control.Description, actual.Description);
+      Assert.AreEqual(control.Pages, actual.Pages);
+    }
   }
 }

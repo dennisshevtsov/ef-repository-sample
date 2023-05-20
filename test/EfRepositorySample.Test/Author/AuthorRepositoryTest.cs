@@ -90,7 +90,7 @@ namespace EfRepositorySample.Test.Author
       Assert.IsNotNull(dbAuthorEntity);
       Assert.AreEqual(controlAuthorEntity.Name, dbAuthorEntity.Name);
       Assert.AreEqual(controlAuthorEntity.Bio , dbAuthorEntity.Bio );
-      AreEqual(controlAuthorEntity.Books, actualAuthorEntity.Books);
+      TestBookEntity.AreEqual(controlAuthorEntity.Books, actualAuthorEntity.Books);
     }
 
     [TestMethod]
@@ -170,33 +170,6 @@ namespace EfRepositorySample.Test.Author
 
       return bookEntityCollection.Select(entity => new TestBookEntity(entity))
                                  .ToList();
-    }
-
-    private void AreEqual(
-      IEnumerable<IBookEntity> controlBookEntityCollection,
-      IEnumerable<IBookEntity> actualBookEntityCollection)
-    {
-      var controlBookEntityList =
-        controlBookEntityCollection.OrderBy(entity => entity.BookId)
-                                   .ToList();
-      
-      var actualBookEntityList =
-        actualBookEntityCollection.OrderBy(entity => entity.BookId)
-                                  .ToList();
-
-      Assert.AreEqual(controlBookEntityList.Count, actualBookEntityList.Count);
-
-      for (int i = 0; i < controlBookEntityList.Count; i++)
-      {
-        AreEqual(controlBookEntityList[i], actualBookEntityList[i]);
-      }
-    }
-
-    private void AreEqual(IBookEntity control, IBookEntity actual)
-    {
-      Assert.AreEqual(control.Title, actual.Title);
-      Assert.AreEqual(control.Description, actual.Description);
-      Assert.AreEqual(control.Pages, actual.Pages);
     }
   }
 }

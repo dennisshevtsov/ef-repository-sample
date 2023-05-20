@@ -6,15 +6,25 @@ namespace EfRepositorySample.Test.Book
 {
   using EfRepositorySample.Author;
   using EfRepositorySample.Book;
+  using EfRepositorySample.Test.Author;
 
   public sealed class TestBookEntity : IBookEntity
   {
+    public TestBookEntity(IBookEntity bookEntity)
+      : this(bookEntity.BookId,
+             bookEntity.Title,
+             bookEntity.Description,
+             bookEntity.Pages,
+             bookEntity.Authors)
+    { }
+
     public TestBookEntity(string title, string description, int pages, IEnumerable<IAuthorEntity> authors)
     {
       Title       = title;
       Description = description;
       Pages       = pages;
-      Authors     = authors;
+      Authors     = authors.Select(entity => new TestAuthorEntity(entity))
+                           .ToList();
     }
 
     public TestBookEntity(Guid bookId, string title, string description, int pages, IEnumerable<IAuthorEntity> authors)
@@ -32,5 +42,11 @@ namespace EfRepositorySample.Test.Book
     public int Pages { get; }
 
     public IEnumerable<IAuthorEntity> Authors { get; }
+
+    public static TestBookEntity New(int pages) => new TestBookEntity(
+      Guid.NewGuid().ToString(),
+      Guid.NewGuid().ToString(),
+      pages,
+      new List<IAuthorEntity>());
   }
 }

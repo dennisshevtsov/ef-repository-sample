@@ -10,7 +10,7 @@ namespace EfRepositorySample.Test.Author
   public sealed class TestAuthorEntity : IAuthorEntity
   {
     public TestAuthorEntity(IAuthorEntity authorEntity)
-      : this(authorEntity.Name, authorEntity.Bio, authorEntity.Books)
+      : this(authorEntity.AuthorId, authorEntity.Name, authorEntity.Bio, authorEntity.Books)
     { }
 
     public TestAuthorEntity(string name, string bio, IEnumerable<IBookEntity> books)

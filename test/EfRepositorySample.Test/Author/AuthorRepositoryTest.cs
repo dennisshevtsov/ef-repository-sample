@@ -140,10 +140,7 @@ namespace EfRepositorySample.Test.Author
 
     private async Task<IAuthorEntity> CreateAuthorAsync()
     {
-      var testAuthorEntity = new TestAuthorEntity(
-        Guid.NewGuid().ToString(),
-        Guid.NewGuid().ToString(),
-        new List<IBookEntity>());
+      var testAuthorEntity = TestAuthorEntity.New();
       var dataAuthorEntity = new AuthorEntity(testAuthorEntity);
 
       var dataAuthorEntityEntry = DbContext.Add(dataAuthorEntity);

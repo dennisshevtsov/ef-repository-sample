@@ -148,11 +148,7 @@ namespace EfRepositorySample.Test.Book
 
     private async Task<IBookEntity> CreateBookAsync()
     {
-      var testBookEntity = new TestBookEntity(
-        Guid.NewGuid().ToString(),
-        Guid.NewGuid().ToString(),
-        500,
-        new List<IAuthorEntity>());
+      var testBookEntity = TestBookEntity.New(500);
       var dataBookEntity = new BookEntity(testBookEntity);
 
       var dataBookEntityEntry = DbContext.Add(dataBookEntity);

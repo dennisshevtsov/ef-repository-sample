@@ -4,13 +4,10 @@
 
 namespace EfRepositorySample.Test.Author
 {
-  using Microsoft.EntityFrameworkCore;
   using Microsoft.Extensions.DependencyInjection;
 
   using EfRepositorySample.Author;
   using EfRepositorySample.Book;
-  using EfRepositorySample.Data.Author;
-  using EfRepositorySample.Data.Book;
   using EfRepositorySample.Test.Book;
 
   [TestClass]
@@ -31,7 +28,7 @@ namespace EfRepositorySample.Test.Author
       var controlAuthorIdentity = new TestAuthorIdentity(Guid.NewGuid());
 
       var actualAuthorEntity =
-        await _authorRepository.GetAsync(controlAuthorIdentity, CancellationToken.None);
+        await _authorRepository.GetAsync(controlAuthorIdentity, Enumerable.Empty<string>(), CancellationToken.None);
 
       Assert.IsNull(actualAuthorEntity);
     }
@@ -39,15 +36,34 @@ namespace EfRepositorySample.Test.Author
     [TestMethod]
     public async Task GetAsync_ExistingAuthorId_AuthorReturned()
     {
-      var controlAuthorEntity = await CreateAuthorAsync();
+      var controlAuthorEntity = await TestAuthorEntity.AddAsync(DbContext);
 
       var actualAuthorEntity =
-        await _authorRepository.GetAsync(controlAuthorEntity, CancellationToken.None);
+        await _authorRepository.GetAsync(controlAuthorEntity, Enumerable.Empty<string>(), CancellationToken.None);
 
       Assert.IsNotNull(actualAuthorEntity);
       Assert.AreEqual(controlAuthorEntity.AuthorId, actualAuthorEntity.AuthorId);
       Assert.AreEqual(controlAuthorEntity.Name, actualAuthorEntity.Name);
       Assert.AreEqual(controlAuthorEntity.Bio, actualAuthorEntity.Bio);
+    }
+
+    [TestMethod]
+    public async Task GetAsync_BooksPropertyPassed_AuthorWithBooksReturned()
+    {
+      var controlBookEntityCollection = await TestBookEntity.AddAsync(DbContext, 5);
+      var controlAuthorEntity = await TestAuthorEntity.AddAsync(DbContext, controlBookEntityCollection);
+
+      var actualAuthorEntity =
+        await _authorRepository.GetAsync(
+          controlAuthorEntity,
+          new[] { nameof(IAuthorEntity.Books) },
+          CancellationToken.None);
+
+      Assert.IsNotNull(actualAuthorEntity);
+      Assert.AreEqual(controlAuthorEntity.AuthorId, actualAuthorEntity.AuthorId);
+      Assert.AreEqual(controlAuthorEntity.Name, actualAuthorEntity.Name);
+      Assert.AreEqual(controlAuthorEntity.Bio, actualAuthorEntity.Bio);
+      TestBookEntity.AreEqual(controlBookEntityCollection, actualAuthorEntity.Books);
     }
 
     [TestMethod]
@@ -73,30 +89,25 @@ namespace EfRepositorySample.Test.Author
       var controlAuthorEntity = new TestAuthorEntity(
         Guid.NewGuid().ToString(),
         Guid.NewGuid().ToString(),
-        await CreateBooksAsync(5));
+        await TestBookEntity.AddAsync(DbContext, 5));
 
       var savedAuthorEntity =
         await _authorRepository.AddAsync(controlAuthorEntity, CancellationToken.None);
 
       Assert.IsNotNull(savedAuthorEntity);
 
-      var actualAuthorEntity =
-        await DbContext.Set<AuthorEntity>()
-                       .AsNoTracking()
-                       .Include(entity => entity.AuthorBooks)
-                       .Where(entity => entity.Id == savedAuthorEntity.AuthorId)
-                       .FirstOrDefaultAsync();
+      var actualAuthorEntity = await TestAuthorEntity.GetAsync(DbContext, savedAuthorEntity);
 
       Assert.IsNotNull(actualAuthorEntity);
       Assert.AreEqual(controlAuthorEntity.Name, actualAuthorEntity.Name);
-      Assert.AreEqual(controlAuthorEntity.Bio , actualAuthorEntity.Bio );
+      Assert.AreEqual(controlAuthorEntity.Bio, actualAuthorEntity.Bio);
       TestBookEntity.AreEqual(controlAuthorEntity.Books, actualAuthorEntity.Books);
     }
 
     [TestMethod]
     public async Task UpdateAsync_AuthorPassed_AuthorUpdated()
     {
-      var originalAuthorEntity = await CreateAuthorAsync();
+      var originalAuthorEntity = await TestAuthorEntity.AddAsync(DbContext);
       var updatingAuthorEntity = new TestAuthorEntity(
         originalAuthorEntity.AuthorId,
         Guid.NewGuid().ToString(),
@@ -110,11 +121,7 @@ namespace EfRepositorySample.Test.Author
 
       await _authorRepository.UpdateAsync(updatingAuthorEntity, updatingProperties, CancellationToken.None);
 
-      var actualAuthorEntity =
-        await DbContext.Set<AuthorEntity>()
-                       .AsNoTracking()
-                       .Where(entity => entity.Id == updatingAuthorEntity.AuthorId)
-                       .SingleOrDefaultAsync();
+      var actualAuthorEntity = await TestAuthorEntity.GetAsync(DbContext, updatingAuthorEntity);
 
       Assert.IsNotNull(actualAuthorEntity);
       Assert.AreEqual(updatingAuthorEntity.AuthorId, actualAuthorEntity.AuthorId);
@@ -125,56 +132,13 @@ namespace EfRepositorySample.Test.Author
     [TestMethod]
     public async Task DeleteAsync_AuthorPassed_AuthorDeleted()
     {
-      var controlAuthorEntity = await CreateAuthorAsync();
+      var controlAuthorEntity = await TestAuthorEntity.AddAsync(DbContext);
 
       await _authorRepository.DeleteAsync(controlAuthorEntity, CancellationToken.None);
 
-      var actualAuthorEntity =
-        await DbContext.Set<AuthorEntity>()
-                       .AsNoTracking()
-                       .Where(entity => entity.Id == controlAuthorEntity.AuthorId)
-                       .SingleOrDefaultAsync();
+      var actualAuthorEntity = await TestAuthorEntity.GetAsync(DbContext, controlAuthorEntity);
 
       Assert.IsNull(actualAuthorEntity);
-    }
-
-    private async Task<IAuthorEntity> CreateAuthorAsync()
-    {
-      var testAuthorEntity = new TestAuthorEntity(
-        Guid.NewGuid().ToString(),
-        Guid.NewGuid().ToString(),
-        new List<IBookEntity>());
-      var dataAuthorEntity = new AuthorEntity(testAuthorEntity);
-
-      var dataAuthorEntityEntry = DbContext.Add(dataAuthorEntity);
-      await DbContext.SaveChangesAsync();
-      dataAuthorEntityEntry.State = EntityState.Detached;
-
-      return dataAuthorEntity;
-    }
-
-    private async Task<IEnumerable<IBookEntity>> CreateBooksAsync(int books)
-    {
-      var bookEntityCollection = new List<BookEntity>();
-
-      for (int i = 0; i < books; i++)
-      {
-        var testBookEntity = TestBookEntity.New(i * 100);
-        var dataBookEntity = new BookEntity(testBookEntity);
-
-        bookEntityCollection.Add(dataBookEntity);
-      }
-
-      DbContext.AddRange(bookEntityCollection);
-      await DbContext.SaveChangesAsync();
-
-      foreach (var dataBookEntity in bookEntityCollection)
-      {
-        DbContext.Entry(dataBookEntity).State = EntityState.Detached;
-      }
-
-      return bookEntityCollection.Select(entity => new TestBookEntity(entity))
-                                 .ToList();
     }
   }
 }

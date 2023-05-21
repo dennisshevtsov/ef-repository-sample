@@ -4,7 +4,9 @@
 
 namespace EfRepositorySample.Data
 {
+  using EfRepositorySample.Data.Author;
   using Microsoft.EntityFrameworkCore;
+  using System.Linq;
 
   /// <summary>Provides a simple API to persistence of an entity.</summary>
   public abstract class RepositoryBase<TEntityImpl, TEntity, TIdentity> : IRepository<TEntity, TIdentity>
@@ -24,23 +26,33 @@ namespace EfRepositorySample.Data
 
     /// <summary>Gets an entity.</summary>
     /// <param name="identity">An object that represents an identity of an entity.</param>
+    /// <param name="relations">An object that represents a collection of relations to load.</param>
     /// <param name="cancellationToken">An object that propagates notification that operations should be canceled.</param>
     /// <returns>An object that represents an asynchronous operation that produces a result at some time in the future.</returns>
-    public async Task<TEntity?> GetAsync(TIdentity identity, CancellationToken cancellationToken)
+    public virtual async Task<TEntity?> GetAsync(TIdentity identity, IEnumerable<string> relations, CancellationToken cancellationToken)
     {
-      var id = EntityBase.Create<TIdentity, TEntityImpl>(identity).Id;
+      var id    = EntityBase.Create<TIdentity, TEntityImpl>(identity).Id;
+      var query = DbContext.Set<TEntityImpl>()
+                           .AsNoTracking()
+                           .Where(entity => entity.Id == id);
 
-      return await DbContext.Set<TEntityImpl>()
-                            .AsNoTracking()
-                            .Where(entity => entity.Id == id)
-                            .SingleOrDefaultAsync(cancellationToken);
+      query = IncludeRelations(query, relations);
+
+      return await query.SingleOrDefaultAsync(cancellationToken);
     }
+
+    /// <summary>Includes relations.</summary>
+    /// <param name="query">An object that represents a query of entities.</param>
+    /// <param name="relations">An object that represents a collection of relations to load.</param>
+    /// <returns>An object that represents a query of entities.</returns>
+    protected virtual IQueryable<TEntityImpl> IncludeRelations(
+      IQueryable<TEntityImpl> query, IEnumerable<string> relations) => query;
 
     /// <summary>Adds an entity.</summary>
     /// <param name="entity">An object that represents an entity.</param>
     /// <param name="cancellationToken">An object that propagates notification that operations should be canceled.</param>
     /// <returns>An object that represents an asynchronous operation that produces a result at some time in the future.</returns>
-    public async Task<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken)
+    public virtual async Task<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken)
     {
       var dbEntity = EntityBase.Create<TEntity, TEntityImpl>(entity);
       var dbEntityEntry = DbContext.Entry(dbEntity);
@@ -69,7 +81,7 @@ namespace EfRepositorySample.Data
     /// <param name="properties">An object that represents a collection of properties to update.</param>
     /// <param name="cancellationToken">An object that propagates notification that operations should be canceled.</param>
     /// <returns>An object that represents an asynchronous operation.</returns>
-    public async Task UpdateAsync(TEntity entity, IEnumerable<string> properties, CancellationToken cancellationToken)
+    public virtual async Task UpdateAsync(TEntity entity, IEnumerable<string> properties, CancellationToken cancellationToken)
     {
       var dbEntity = EntityBase.Create<TEntity, TEntityImpl>(entity);
       var dbEntityEntry = DbContext.Entry(dbEntity);
@@ -94,7 +106,7 @@ namespace EfRepositorySample.Data
     /// <param name="identity">An object that represents an identity of an entity.</param>
     /// <param name="cancellationToken">An object that propagates notification that operations should be canceled.</param>
     /// <returns>An object that represents an asynchronous operation.</returns>
-    public Task DeleteAsync(TIdentity identity, CancellationToken cancellationToken)
+    public virtual Task DeleteAsync(TIdentity identity, CancellationToken cancellationToken)
     {
       var id = EntityBase.Create<TIdentity, TEntityImpl>(identity).Id;
 

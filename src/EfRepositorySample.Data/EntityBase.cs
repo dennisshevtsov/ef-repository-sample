@@ -15,6 +15,7 @@ namespace EfRepositorySample.Data
     /// <returns>An object that represents an instance of an entity copy.</returns>
     /// <exception cref="System.NotSupportedException">Throws if there is no such entity.</exception>
     public static T2 Create<T1, T2>(T1 entity) where T2 : EntityBase, T1
-      => (T2)Activator.CreateInstance(typeof(T2), entity)!;
+      => (T2)typeof(T2).GetConstructor(new[] { typeof(T1) })!
+                       .Invoke(new object[] { entity! });
   }
 }

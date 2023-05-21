@@ -43,11 +43,10 @@ namespace EfRepositorySample.Test.Book
 
     public IEnumerable<IAuthorEntity> Authors { get; }
 
-    public static TestBookEntity New(int pages) => new TestBookEntity(
-      Guid.NewGuid().ToString(),
-      Guid.NewGuid().ToString(),
-      pages,
-      new List<IAuthorEntity>());
+    public static TestBookEntity New(int pages, IEnumerable<IAuthorEntity> authors) =>
+      new TestBookEntity(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), pages, authors);
+
+    public static TestBookEntity New(int pages) => New(pages, new List<IAuthorEntity>());
 
     public static void AreEqual(
       IEnumerable<IBookEntity> controlBookEntityCollection,

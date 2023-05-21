@@ -42,7 +42,7 @@ namespace EfRepositorySample.Test.Author
 
     public static TestAuthorEntity New() => New(new List<IBookEntity>());
 
-    public static async Task<IAuthorEntity> AddAuthorAsync(DbContext dbContext)
+    public static async Task<IAuthorEntity> AddAsync(DbContext dbContext)
     {
       var testAuthorEntity = TestAuthorEntity.New();
       var dataAuthorEntity = new AuthorEntity(testAuthorEntity);
@@ -53,6 +53,13 @@ namespace EfRepositorySample.Test.Author
 
       return dataAuthorEntity;
     }
+
+    public static async Task<IAuthorEntity?> GetAsync(DbContext dbContext, IAuthorIdentity identity) =>
+      await dbContext.Set<AuthorEntity>()
+                     .AsNoTracking()
+                     .Include(entity => entity.AuthorBooks)
+                     .Where(entity => entity.Id == identity.AuthorId)
+                     .FirstOrDefaultAsync();
 
     public static void AreEqual(
       IEnumerable<IAuthorEntity> controlAuthorEntityCollection,

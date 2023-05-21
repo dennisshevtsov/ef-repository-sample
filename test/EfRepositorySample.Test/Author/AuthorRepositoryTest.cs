@@ -4,12 +4,10 @@
 
 namespace EfRepositorySample.Test.Author
 {
-  using Microsoft.EntityFrameworkCore;
   using Microsoft.Extensions.DependencyInjection;
 
   using EfRepositorySample.Author;
   using EfRepositorySample.Book;
-  using EfRepositorySample.Data.Author;
   using EfRepositorySample.Test.Book;
 
   [TestClass]
@@ -38,7 +36,7 @@ namespace EfRepositorySample.Test.Author
     [TestMethod]
     public async Task GetAsync_ExistingAuthorId_AuthorReturned()
     {
-      var controlAuthorEntity = await TestAuthorEntity.AddAuthorAsync(DbContext);
+      var controlAuthorEntity = await TestAuthorEntity.AddAsync(DbContext);
 
       var actualAuthorEntity =
         await _authorRepository.GetAsync(controlAuthorEntity, Enumerable.Empty<string>(), CancellationToken.None);
@@ -79,12 +77,7 @@ namespace EfRepositorySample.Test.Author
 
       Assert.IsNotNull(savedAuthorEntity);
 
-      var actualAuthorEntity =
-        await DbContext.Set<AuthorEntity>()
-                       .AsNoTracking()
-                       .Include(entity => entity.AuthorBooks)
-                       .Where(entity => entity.Id == savedAuthorEntity.AuthorId)
-                       .FirstOrDefaultAsync();
+      var actualAuthorEntity = await TestAuthorEntity.GetAsync(DbContext, savedAuthorEntity);
 
       Assert.IsNotNull(actualAuthorEntity);
       Assert.AreEqual(controlAuthorEntity.Name, actualAuthorEntity.Name);
@@ -95,7 +88,7 @@ namespace EfRepositorySample.Test.Author
     [TestMethod]
     public async Task UpdateAsync_AuthorPassed_AuthorUpdated()
     {
-      var originalAuthorEntity = await TestAuthorEntity.AddAuthorAsync(DbContext);
+      var originalAuthorEntity = await TestAuthorEntity.AddAsync(DbContext);
       var updatingAuthorEntity = new TestAuthorEntity(
         originalAuthorEntity.AuthorId,
         Guid.NewGuid().ToString(),
@@ -109,11 +102,7 @@ namespace EfRepositorySample.Test.Author
 
       await _authorRepository.UpdateAsync(updatingAuthorEntity, updatingProperties, CancellationToken.None);
 
-      var actualAuthorEntity =
-        await DbContext.Set<AuthorEntity>()
-                       .AsNoTracking()
-                       .Where(entity => entity.Id == updatingAuthorEntity.AuthorId)
-                       .SingleOrDefaultAsync();
+      var actualAuthorEntity = await TestAuthorEntity.GetAsync(DbContext, updatingAuthorEntity);
 
       Assert.IsNotNull(actualAuthorEntity);
       Assert.AreEqual(updatingAuthorEntity.AuthorId, actualAuthorEntity.AuthorId);
@@ -124,15 +113,11 @@ namespace EfRepositorySample.Test.Author
     [TestMethod]
     public async Task DeleteAsync_AuthorPassed_AuthorDeleted()
     {
-      var controlAuthorEntity = await TestAuthorEntity.AddAuthorAsync(DbContext);
+      var controlAuthorEntity = await TestAuthorEntity.AddAsync(DbContext);
 
       await _authorRepository.DeleteAsync(controlAuthorEntity, CancellationToken.None);
 
-      var actualAuthorEntity =
-        await DbContext.Set<AuthorEntity>()
-                       .AsNoTracking()
-                       .Where(entity => entity.Id == controlAuthorEntity.AuthorId)
-                       .SingleOrDefaultAsync();
+      var actualAuthorEntity = await TestAuthorEntity.GetAsync(DbContext, controlAuthorEntity);
 
       Assert.IsNull(actualAuthorEntity);
     }

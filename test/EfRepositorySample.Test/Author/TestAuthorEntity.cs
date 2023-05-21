@@ -4,10 +4,11 @@
 
 namespace EfRepositorySample.Test.Author
 {
+  using Microsoft.EntityFrameworkCore;
+
   using EfRepositorySample.Author;
   using EfRepositorySample.Book;
   using EfRepositorySample.Data.Author;
-  using Microsoft.EntityFrameworkCore;
 
   public sealed class TestAuthorEntity : IAuthorEntity
   {

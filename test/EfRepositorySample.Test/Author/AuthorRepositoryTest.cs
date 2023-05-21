@@ -48,6 +48,25 @@ namespace EfRepositorySample.Test.Author
     }
 
     [TestMethod]
+    public async Task GetAsync_BooksPropertyPassed_AuthorWithBooksReturned()
+    {
+      var controlBookEntityCollection = await TestBookEntity.AddAsync(DbContext, 5);
+      var controlAuthorEntity = await TestAuthorEntity.AddAsync(DbContext, controlBookEntityCollection);
+
+      var actualAuthorEntity =
+        await _authorRepository.GetAsync(
+          controlAuthorEntity,
+          new[] { nameof(IAuthorEntity.Books) },
+          CancellationToken.None);
+
+      Assert.IsNotNull(actualAuthorEntity);
+      Assert.AreEqual(controlAuthorEntity.AuthorId, actualAuthorEntity.AuthorId);
+      Assert.AreEqual(controlAuthorEntity.Name, actualAuthorEntity.Name);
+      Assert.AreEqual(controlAuthorEntity.Bio, actualAuthorEntity.Bio);
+      TestBookEntity.AreEqual(controlBookEntityCollection, actualAuthorEntity.Books);
+    }
+
+    [TestMethod]
     public async Task AddAsync_AuthorPassed_SavedAuthorReturned()
     {
       var controlAuthorEntity = new TestAuthorEntity(
@@ -81,7 +100,7 @@ namespace EfRepositorySample.Test.Author
 
       Assert.IsNotNull(actualAuthorEntity);
       Assert.AreEqual(controlAuthorEntity.Name, actualAuthorEntity.Name);
-      Assert.AreEqual(controlAuthorEntity.Bio , actualAuthorEntity.Bio );
+      Assert.AreEqual(controlAuthorEntity.Bio, actualAuthorEntity.Bio);
       TestBookEntity.AreEqual(controlAuthorEntity.Books, actualAuthorEntity.Books);
     }
 

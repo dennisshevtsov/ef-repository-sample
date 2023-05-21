@@ -31,7 +31,7 @@ namespace EfRepositorySample.Test.Author
       var controlAuthorIdentity = new TestAuthorIdentity(Guid.NewGuid());
 
       var actualAuthorEntity =
-        await _authorRepository.GetAsync(controlAuthorIdentity, CancellationToken.None);
+        await _authorRepository.GetAsync(controlAuthorIdentity, Enumerable.Empty<string>(), CancellationToken.None);
 
       Assert.IsNull(actualAuthorEntity);
     }
@@ -42,7 +42,7 @@ namespace EfRepositorySample.Test.Author
       var controlAuthorEntity = await CreateAuthorAsync();
 
       var actualAuthorEntity =
-        await _authorRepository.GetAsync(controlAuthorEntity, CancellationToken.None);
+        await _authorRepository.GetAsync(controlAuthorEntity, Enumerable.Empty<string>(), CancellationToken.None);
 
       Assert.IsNotNull(actualAuthorEntity);
       Assert.AreEqual(controlAuthorEntity.AuthorId, actualAuthorEntity.AuthorId);

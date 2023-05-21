@@ -31,7 +31,7 @@ namespace EfRepositorySample.Test.Book
       var controlBookIdentity = new TestBookIdentity(Guid.NewGuid());
 
       var actualBookEntity =
-        await _bookRepository.GetAsync(controlBookIdentity, CancellationToken.None);
+        await _bookRepository.GetAsync(controlBookIdentity, Enumerable.Empty<string>(), CancellationToken.None);
 
       Assert.IsNull(actualBookEntity);
     }
@@ -42,7 +42,7 @@ namespace EfRepositorySample.Test.Book
       var controlBookEntity = await CreateBookAsync();
 
       var actualBookEntity =
-        await _bookRepository.GetAsync(controlBookEntity, CancellationToken.None);
+        await _bookRepository.GetAsync(controlBookEntity, Enumerable.Empty<string>(), CancellationToken.None);
 
       Assert.IsNotNull(actualBookEntity);
       Assert.AreEqual(controlBookEntity.BookId, actualBookEntity.BookId);

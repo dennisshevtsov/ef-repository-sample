@@ -10,7 +10,6 @@ namespace EfRepositorySample.Test.Author
   using EfRepositorySample.Author;
   using EfRepositorySample.Book;
   using EfRepositorySample.Data.Author;
-  using EfRepositorySample.Data.Book;
   using EfRepositorySample.Test.Book;
 
   [TestClass]
@@ -73,7 +72,7 @@ namespace EfRepositorySample.Test.Author
       var controlAuthorEntity = new TestAuthorEntity(
         Guid.NewGuid().ToString(),
         Guid.NewGuid().ToString(),
-        await CreateBooksAsync(5));
+        await TestBookEntity.AddBooksAsync(DbContext, 5));
 
       var savedAuthorEntity =
         await _authorRepository.AddAsync(controlAuthorEntity, CancellationToken.None);
@@ -136,30 +135,6 @@ namespace EfRepositorySample.Test.Author
                        .SingleOrDefaultAsync();
 
       Assert.IsNull(actualAuthorEntity);
-    }
-
-    private async Task<IEnumerable<IBookEntity>> CreateBooksAsync(int books)
-    {
-      var bookEntityCollection = new List<BookEntity>();
-
-      for (int i = 0; i < books; i++)
-      {
-        var testBookEntity = TestBookEntity.New(i * 100);
-        var dataBookEntity = new BookEntity(testBookEntity);
-
-        bookEntityCollection.Add(dataBookEntity);
-      }
-
-      DbContext.AddRange(bookEntityCollection);
-      await DbContext.SaveChangesAsync();
-
-      foreach (var dataBookEntity in bookEntityCollection)
-      {
-        DbContext.Entry(dataBookEntity).State = EntityState.Detached;
-      }
-
-      return bookEntityCollection.Select(entity => new TestBookEntity(entity))
-                                 .ToList();
     }
   }
 }

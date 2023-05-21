@@ -6,7 +6,9 @@ namespace EfRepositorySample.Test.Book
 {
   using EfRepositorySample.Author;
   using EfRepositorySample.Book;
+  using EfRepositorySample.Data.Book;
   using EfRepositorySample.Test.Author;
+  using Microsoft.EntityFrameworkCore;
 
   public sealed class TestBookEntity : IBookEntity
   {
@@ -46,7 +48,32 @@ namespace EfRepositorySample.Test.Book
     public static TestBookEntity New(int pages, IEnumerable<IAuthorEntity> authors) =>
       new TestBookEntity(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), pages, authors);
 
-    public static TestBookEntity New(int pages) => New(pages, new List<IAuthorEntity>());
+    public static TestBookEntity New(int pages) => TestBookEntity.New(pages, new List<IAuthorEntity>());
+
+    public static async Task<IEnumerable<IBookEntity>> AddBooksAsync(
+      DbContext dbContext, int books)
+    {
+      var bookEntityCollection = new List<BookEntity>();
+
+      for (int i = 0; i < books; i++)
+      {
+        var testBookEntity = TestBookEntity.New(i * 100);
+        var dataBookEntity = new BookEntity(testBookEntity);
+
+        bookEntityCollection.Add(dataBookEntity);
+      }
+
+      dbContext.AddRange(bookEntityCollection);
+      await dbContext.SaveChangesAsync();
+
+      foreach (var dataBookEntity in bookEntityCollection)
+      {
+        dbContext.Entry(dataBookEntity).State = EntityState.Detached;
+      }
+
+      return bookEntityCollection.Select(entity => new TestBookEntity(entity))
+                                 .ToList();
+    }
 
     public static void AreEqual(
       IEnumerable<IBookEntity> controlBookEntityCollection,

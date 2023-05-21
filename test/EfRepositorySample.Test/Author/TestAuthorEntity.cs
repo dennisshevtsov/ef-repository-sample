@@ -6,6 +6,8 @@ namespace EfRepositorySample.Test.Author
 {
   using EfRepositorySample.Author;
   using EfRepositorySample.Book;
+  using EfRepositorySample.Data.Author;
+  using Microsoft.EntityFrameworkCore;
 
   public sealed class TestAuthorEntity : IAuthorEntity
   {
@@ -38,6 +40,18 @@ namespace EfRepositorySample.Test.Author
       new TestAuthorEntity(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), books);
 
     public static TestAuthorEntity New() => New(new List<IBookEntity>());
+
+    public static async Task<IAuthorEntity> AddAuthorAsync(DbContext dbContext)
+    {
+      var testAuthorEntity = TestAuthorEntity.New();
+      var dataAuthorEntity = new AuthorEntity(testAuthorEntity);
+
+      var dataAuthorEntityEntry = dbContext.Add(dataAuthorEntity);
+      await dbContext.SaveChangesAsync();
+      dataAuthorEntityEntry.State = EntityState.Detached;
+
+      return dataAuthorEntity;
+    }
 
     public static void AreEqual(
       IEnumerable<IAuthorEntity> controlAuthorEntityCollection,

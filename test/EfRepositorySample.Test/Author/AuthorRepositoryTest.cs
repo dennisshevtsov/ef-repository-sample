@@ -39,7 +39,7 @@ namespace EfRepositorySample.Test.Author
     [TestMethod]
     public async Task GetAsync_ExistingAuthorId_AuthorReturned()
     {
-      var controlAuthorEntity = await CreateAuthorAsync();
+      var controlAuthorEntity = await TestAuthorEntity.AddAuthorAsync(DbContext);
 
       var actualAuthorEntity =
         await _authorRepository.GetAsync(controlAuthorEntity, Enumerable.Empty<string>(), CancellationToken.None);
@@ -96,7 +96,7 @@ namespace EfRepositorySample.Test.Author
     [TestMethod]
     public async Task UpdateAsync_AuthorPassed_AuthorUpdated()
     {
-      var originalAuthorEntity = await CreateAuthorAsync();
+      var originalAuthorEntity = await TestAuthorEntity.AddAuthorAsync(DbContext);
       var updatingAuthorEntity = new TestAuthorEntity(
         originalAuthorEntity.AuthorId,
         Guid.NewGuid().ToString(),
@@ -125,7 +125,7 @@ namespace EfRepositorySample.Test.Author
     [TestMethod]
     public async Task DeleteAsync_AuthorPassed_AuthorDeleted()
     {
-      var controlAuthorEntity = await CreateAuthorAsync();
+      var controlAuthorEntity = await TestAuthorEntity.AddAuthorAsync(DbContext);
 
       await _authorRepository.DeleteAsync(controlAuthorEntity, CancellationToken.None);
 
@@ -136,18 +136,6 @@ namespace EfRepositorySample.Test.Author
                        .SingleOrDefaultAsync();
 
       Assert.IsNull(actualAuthorEntity);
-    }
-
-    private async Task<IAuthorEntity> CreateAuthorAsync()
-    {
-      var testAuthorEntity = TestAuthorEntity.New();
-      var dataAuthorEntity = new AuthorEntity(testAuthorEntity);
-
-      var dataAuthorEntityEntry = DbContext.Add(dataAuthorEntity);
-      await DbContext.SaveChangesAsync();
-      dataAuthorEntityEntry.State = EntityState.Detached;
-
-      return dataAuthorEntity;
     }
 
     private async Task<IEnumerable<IBookEntity>> CreateBooksAsync(int books)

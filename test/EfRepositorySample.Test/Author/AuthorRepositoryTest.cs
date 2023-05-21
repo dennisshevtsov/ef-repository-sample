@@ -70,7 +70,7 @@ namespace EfRepositorySample.Test.Author
       var controlAuthorEntity = new TestAuthorEntity(
         Guid.NewGuid().ToString(),
         Guid.NewGuid().ToString(),
-        await TestBookEntity.AddBooksAsync(DbContext, 5));
+        await TestBookEntity.AddAsync(DbContext, 5));
 
       var savedAuthorEntity =
         await _authorRepository.AddAsync(controlAuthorEntity, CancellationToken.None);

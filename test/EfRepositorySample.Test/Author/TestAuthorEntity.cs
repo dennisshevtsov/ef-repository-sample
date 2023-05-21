@@ -54,6 +54,30 @@ namespace EfRepositorySample.Test.Author
       return dataAuthorEntity;
     }
 
+    public static async Task<IEnumerable<IAuthorEntity>> AddAsync(DbContext dbContext, int authors)
+    {
+      var authorEntityCollection = new List<AuthorEntity>();
+
+      for (int i = 0; i < authors; i++)
+      {
+        var testAuthorEntity = TestAuthorEntity.New();
+        var dataAuthorEntity = new AuthorEntity(testAuthorEntity);
+
+        authorEntityCollection.Add(dataAuthorEntity);
+      }
+
+      dbContext.AddRange(authorEntityCollection);
+      await dbContext.SaveChangesAsync();
+
+      foreach (var dataAuthorEntity in authorEntityCollection)
+      {
+        dbContext.Entry(dataAuthorEntity).State = EntityState.Detached;
+      }
+
+      return authorEntityCollection.Select(entity => new TestAuthorEntity(entity))
+                                   .ToList();
+    }
+
     public static async Task<IAuthorEntity?> GetAsync(DbContext dbContext, IAuthorIdentity identity) =>
       await dbContext.Set<AuthorEntity>()
                      .AsNoTracking()

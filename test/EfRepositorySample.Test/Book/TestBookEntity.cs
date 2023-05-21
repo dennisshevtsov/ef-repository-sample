@@ -50,7 +50,19 @@ namespace EfRepositorySample.Test.Book
 
     public static TestBookEntity New(int pages) => TestBookEntity.New(pages, new List<IAuthorEntity>());
 
-    public static async Task<IEnumerable<IBookEntity>> AddBooksAsync(
+    public static async Task<IBookEntity> AddAsync(DbContext dbContext)
+    {
+      var testBookEntity = TestBookEntity.New(500);
+      var dataBookEntity = new BookEntity(testBookEntity);
+
+      var dataBookEntityEntry = dbContext.Add(dataBookEntity);
+      await dbContext.SaveChangesAsync();
+      dataBookEntityEntry.State = EntityState.Detached;
+
+      return dataBookEntity;
+    }
+
+    public static async Task<IEnumerable<IBookEntity>> AddAsync(
       DbContext dbContext, int books)
     {
       var bookEntityCollection = new List<BookEntity>();
@@ -74,6 +86,13 @@ namespace EfRepositorySample.Test.Book
       return bookEntityCollection.Select(entity => new TestBookEntity(entity))
                                  .ToList();
     }
+
+    public static async Task<IBookEntity?> GetAsync(DbContext dbContext, IBookIdentity identity) =>
+      await dbContext.Set<BookEntity>()
+                     .AsNoTracking()
+                     .Include(entity => entity.BookAuthors)
+                     .Where(entity => entity.Id == identity.BookId)
+                     .FirstOrDefaultAsync();
 
     public static void AreEqual(
       IEnumerable<IBookEntity> controlBookEntityCollection,

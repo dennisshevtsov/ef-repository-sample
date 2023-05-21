@@ -50,17 +50,31 @@ namespace EfRepositorySample.Test.Book
 
     public static TestBookEntity New(int pages) => TestBookEntity.New(pages, new List<IAuthorEntity>());
 
-    public static async Task<IBookEntity> AddAsync(DbContext dbContext)
+    public static async Task<IBookEntity> AddAsync(DbContext dbContext, IEnumerable<IAuthorEntity> authors)
     {
-      var testBookEntity = TestBookEntity.New(500);
+      var testBookEntity = TestBookEntity.New(500, authors);
       var dataBookEntity = new BookEntity(testBookEntity);
 
       var dataBookEntityEntry = dbContext.Add(dataBookEntity);
+
+      foreach (var authorEntity in dataBookEntity.BookAuthors)
+      {
+        dbContext.Entry(authorEntity).State = EntityState.Unchanged;
+      }
+
       await dbContext.SaveChangesAsync();
       dataBookEntityEntry.State = EntityState.Detached;
 
+      foreach (var authorEntity in dataBookEntity.BookAuthors)
+      {
+        dbContext.Entry(authorEntity).State = EntityState.Deleted;
+      }
+
       return dataBookEntity;
     }
+
+    public static Task<IBookEntity> AddAsync(DbContext dbContext) =>
+      AddAsync(dbContext, new List<IAuthorEntity>());
 
     public static async Task<IEnumerable<IBookEntity>> AddAsync(
       DbContext dbContext, int books)

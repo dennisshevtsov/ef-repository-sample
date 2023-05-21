@@ -9,6 +9,7 @@ namespace EfRepositorySample.Test.Book
   using EfRepositorySample.Book;
   using EfRepositorySample.Author;
   using EfRepositorySample.Test.Author;
+  using EfRepositorySample.Data.Author;
 
   [TestClass]
   public sealed class BookRepositoryTest : IntegrationTestBase
@@ -46,6 +47,25 @@ namespace EfRepositorySample.Test.Book
       Assert.AreEqual(controlBookEntity.Title, actualBookEntity.Title);
       Assert.AreEqual(controlBookEntity.Description, actualBookEntity.Description);
       Assert.AreEqual(controlBookEntity.Pages, actualBookEntity.Pages);
+    }
+
+    [TestMethod]
+    public async Task GetAsync_AuthorsPropertyPassed_BookWithAuthorsReturned()
+    {
+      var controlAuthorEntityCollection = await TestAuthorEntity.AddAsync(DbContext, 5);
+      var controlBookEntity = await TestBookEntity.AddAsync(DbContext, controlAuthorEntityCollection);
+      var actualBookEntity =
+        await _bookRepository.GetAsync(
+          controlBookEntity,
+          new[] { nameof(IBookEntity.Authors) },
+          CancellationToken.None);
+
+      Assert.IsNotNull(actualBookEntity);
+      Assert.AreEqual(controlBookEntity.BookId, actualBookEntity.BookId);
+      Assert.AreEqual(controlBookEntity.Title, actualBookEntity.Title);
+      Assert.AreEqual(controlBookEntity.Description, actualBookEntity.Description);
+      Assert.AreEqual(controlBookEntity.Pages, actualBookEntity.Pages);
+      TestAuthorEntity.AreEqual(controlAuthorEntityCollection, actualBookEntity.Authors);
     }
 
     [TestMethod]

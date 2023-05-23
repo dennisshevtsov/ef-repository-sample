@@ -7,6 +7,7 @@ namespace EfRepositorySample.Data.Book
   using EfRepositorySample.Author;
   using EfRepositorySample.Book;
   using EfRepositorySample.Data.Author;
+  using static System.Reflection.Metadata.BlobBuilder;
 
   /// <summary>Represents a book entity.</summary>
   public sealed class BookEntity : EntityBase, IBookEntity, IUpdatable<IBookEntity>
@@ -62,6 +63,39 @@ namespace EfRepositorySample.Data.Book
     /// <param name="properties">An object that represents a collection of properties to update.</param>
     public void Update(IBookEntity newEntity, IEnumerable<string> properties) =>
        base.Update(newEntity, properties);
+
+    protected override void Update(object newEntity, string property)
+    {
+      if (property == nameof(Authors))
+      {
+        var newBookEntity = (IBookEntity)newEntity;
+
+        var newAuthors = newBookEntity.Authors.Select(entity => entity.AuthorId)
+                                              .ToHashSet();
+        var exitingAuthors = Authors.Select(entity => entity.AuthorId)
+                                    .ToHashSet();
+
+        var deletingAuthors = BookAuthors.Where(entity => !newAuthors.Contains(entity.AuthorId))
+                                         .ToList();
+
+        foreach (var authorEntity in deletingAuthors)
+        {
+          BookAuthors.Remove(authorEntity);
+        }
+
+        var addingAuthors = newBookEntity.Authors.Where(entity => !exitingAuthors.Contains(entity.BookId))
+                                                 .ToList();
+
+        foreach (var authorEntity in addingAuthors)
+        {
+          BookAuthors.Add(new AuthorEntity(authorEntity));
+        }
+      }
+      else
+      {
+        base.Update(newEntity, property);
+      }
+    }
 
     /// <summary>Copies a collection of books.</summary>
     /// <param name="books">An object that represents a collection of books to copy.</param>

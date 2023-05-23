@@ -119,7 +119,7 @@ namespace EfRepositorySample.Test.Author
         nameof(IAuthorEntity.Bio),
       };
 
-      await _authorRepository.UpdateAsync(updatingAuthorEntity, updatingProperties, CancellationToken.None);
+      await _authorRepository.UpdateAsync(originalAuthorEntity, updatingAuthorEntity, updatingProperties, CancellationToken.None);
 
       var actualAuthorEntity = await TestAuthorEntity.GetAsync(DbContext, updatingAuthorEntity);
 

@@ -77,26 +77,18 @@ namespace EfRepositorySample.Data
     }
 
     /// <summary>Updates an entity.</summary>
-    /// <param name="entity">An object that represents an entity.</param>
+    /// <param name="originalEntity">An object that represents an entity to update.</param>
+    /// <param name="newEntity">An object that represents an entity from which the original entity should be updated.</param>
     /// <param name="properties">An object that represents a collection of properties to update.</param>
     /// <param name="cancellationToken">An object that propagates notification that operations should be canceled.</param>
     /// <returns>An object that represents an asynchronous operation.</returns>
-    public virtual async Task UpdateAsync(TEntity entity, IEnumerable<string> properties, CancellationToken cancellationToken)
+    public async Task UpdateAsync(TEntity originalEntity, TEntity newEntity, IEnumerable<string> properties, CancellationToken cancellationToken)
     {
-      var dbEntity = EntityBase.Create<TEntity, TEntityImpl>(entity);
-      var dbEntityEntry = DbContext.Entry(dbEntity);
+      var dbEntity = EntityBase.Create<TEntity, TEntityImpl>(originalEntity);
+      var dbEntityEntry = DbContext.Entry(originalEntity);
 
       dbEntityEntry.State = EntityState.Unchanged;
-
-      var propertyHash = properties.ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-      foreach (var property in dbEntityEntry.Properties)
-      {
-        if (propertyHash.Contains(property.Metadata.Name))
-        {
-          property.IsModified = true;
-        }
-      }
+      dbEntity.Update(newEntity);
 
       await DbContext.SaveChangesAsync(cancellationToken);
       dbEntityEntry.State = EntityState.Detached;

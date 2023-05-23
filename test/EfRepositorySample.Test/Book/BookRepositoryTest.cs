@@ -127,7 +127,7 @@ namespace EfRepositorySample.Test.Book
         nameof(IBookEntity.Pages),
       };
 
-      await _bookRepository.UpdateAsync(updatingBookEntity, updatingProperties, CancellationToken.None);
+      await _bookRepository.UpdateAsync(originalBookEntity, updatingBookEntity, updatingProperties, CancellationToken.None);
 
       var actualBookEntity = await TestBookEntity.GetAsync(DbContext, updatingBookEntity);
 

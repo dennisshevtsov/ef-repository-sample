@@ -14,8 +14,8 @@ namespace EfRepositorySample.Data.Author
     /// <summary>Initializes a new instance of the <see cref="EfRepositorySample.Data.Author.AuthorEntity"/> class.</summary>
     public AuthorEntity()
     {
-      Name        = string.Empty;
-      Bio         = string.Empty;
+      Name = string.Empty;
+      Bio = string.Empty;
       AuthorBooks = new List<BookEntity>();
     }
 
@@ -30,8 +30,8 @@ namespace EfRepositorySample.Data.Author
     /// <param name="authorEntity">An object that represents an author entity.</param>
     public AuthorEntity(IAuthorEntity authorEntity) : this((IAuthorIdentity)authorEntity)
     {
-      Name        = authorEntity.Name;
-      Bio         = authorEntity.Bio;
+      Name = authorEntity.Name;
+      Bio = authorEntity.Bio;
       AuthorBooks = BookEntity.Copy(authorEntity.Books);
     }
 
@@ -66,5 +66,38 @@ namespace EfRepositorySample.Data.Author
     public static ICollection<AuthorEntity> Copy(IEnumerable<IAuthorEntity> authors)
       => authors.Select(entity => new AuthorEntity(entity))
                 .ToList();
+
+    protected override void Update(object newEntity, string property)
+    {
+      if (property == nameof(Books))
+      {
+        var newAuthorEntity = (IAuthorEntity)newEntity;
+
+        var newBooks = newAuthorEntity.Books.Select(entity => entity.BookId)
+                                            .ToHashSet();
+        var exitingBooks = Books.Select(entity => entity.BookId)
+                                .ToHashSet();
+
+        var deletingBooks = AuthorBooks.Where(entity => !newBooks.Contains(entity.BookId))
+                                       .ToList();
+
+        foreach (var bookEntity in deletingBooks)
+        {
+          AuthorBooks.Remove(bookEntity);
+        }
+
+        var addingBooks = newAuthorEntity.Books.Where(entity => !exitingBooks.Contains(entity.BookId))
+                                               .ToList();
+
+        foreach (var bookEntity in addingBooks)
+        {
+          AuthorBooks.Add(new BookEntity(bookEntity));
+        }
+      }
+      else
+      {
+        base.Update(newEntity, property);
+      }
+    }
   }
 }

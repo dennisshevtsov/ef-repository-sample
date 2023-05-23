@@ -26,23 +26,28 @@ namespace EfRepositorySample.Data
     public void Update(object newEntity, IEnumerable<string> properties) =>
       Update(newEntity, properties, GetUpdatingProperties());
 
-    private void Update(object newEntity, IEnumerable<string> updatedProperties, ISet<string> updatingProperties)
+    protected virtual void Update(object newEntity, IEnumerable<string> updatedProperties, ISet<string> updatingProperties)
     {
       foreach (var property in updatedProperties)
       {
         if (updatingProperties.Contains(property))
         {
-          var originalProperty = GetType().GetProperty(property)!;
-          var newProperty      = newEntity.GetType().GetProperty(property)!;
-
-          var originalValue = originalProperty.GetValue(this);
-          var newValue      = newProperty.GetValue(newEntity);
-
-          if (!object.Equals(originalValue, newValue))
-          {
-            originalProperty.SetValue(this, newValue);
-          }
+          Update(newEntity, property);
         }
+      }
+    }
+
+    protected virtual void Update(object newEntity, string property)
+    {
+      var originalProperty = GetType().GetProperty(property)!;
+      var newProperty = newEntity.GetType().GetProperty(property)!;
+
+      var originalValue = originalProperty.GetValue(this);
+      var newValue = newProperty.GetValue(newEntity);
+
+      if (!object.Equals(originalValue, newValue))
+      {
+        originalProperty.SetValue(this, newValue);
       }
     }
 

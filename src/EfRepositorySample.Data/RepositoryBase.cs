@@ -4,9 +4,9 @@
 
 namespace EfRepositorySample.Data
 {
-  using EfRepositorySample.Data.Author;
-  using Microsoft.EntityFrameworkCore;
   using System.Linq;
+
+  using Microsoft.EntityFrameworkCore;
 
   /// <summary>Provides a simple API to persistence of an entity.</summary>
   public abstract class RepositoryBase<TEntityImpl, TEntity, TIdentity> : IRepository<TEntity, TIdentity>

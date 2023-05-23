@@ -9,7 +9,7 @@ namespace EfRepositorySample.Data.Author
   using EfRepositorySample.Data.Book;
 
   /// <summary>Represents an author entity.</summary>
-  public sealed class AuthorEntity : EntityBase, IAuthorEntity
+  public sealed class AuthorEntity : EntityBase, IAuthorEntity, IUpdatable<IAuthorEntity>
   {
     /// <summary>Initializes a new instance of the <see cref="EfRepositorySample.Data.Author.AuthorEntity"/> class.</summary>
     public AuthorEntity()
@@ -49,6 +49,16 @@ namespace EfRepositorySample.Data.Author
 
     /// <summary>Gets an object that represents a collection of this author's books.</summary>
     public ICollection<BookEntity> AuthorBooks { get; }
+
+    /// <summary>Updates this entity.</summary>
+    /// <param name="newEntity">An object that represents an entity from which this entity should be updated.</param>
+    public void Update(IAuthorEntity newEntity) => base.Update(newEntity);
+
+    /// <summary>Updates this entity.</summary>
+    /// <param name="newEntity">An object that represents an entity from which this entity should be updated.</param>
+    /// <param name="properties">An object that represents a collection of properties to update.</param>
+    public void Update(IAuthorEntity newEntity, IEnumerable<string> properties) =>
+       base.Update(newEntity, properties);
 
     /// <summary>Copies a collection of authors.</summary>
     /// <param name="authors">An object that represents a collection of authors to copy.</param>

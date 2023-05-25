@@ -107,14 +107,21 @@ namespace EfRepositorySample.Test.Author
     [TestMethod]
     public async Task UpdateAsync_AuthorPassed_AuthorUpdated()
     {
-      var originalBookEntityCollection = await TestBookEntity.AddAsync(DbContext, 5);
+      var controlBookEntityCollection = await TestBookEntity.AddAsync(DbContext, 5);
+
+      var originalBookEntityCollection = new List<IBookEntity>
+      {
+        controlBookEntityCollection[0],
+        controlBookEntityCollection[1],
+        controlBookEntityCollection[2],
+      };
       var originalAuthorEntity = await TestAuthorEntity.AddAsync(DbContext, originalBookEntityCollection);
 
       var updatingBookEntityCollection = new List<IBookEntity>
       {
-        originalBookEntityCollection.First(),
-        await TestBookEntity.AddAsync(DbContext),
-        await TestBookEntity.AddAsync(DbContext),
+        controlBookEntityCollection[1],
+        controlBookEntityCollection[3],
+        controlBookEntityCollection[4],
       };
       var updatingAuthorEntity = new TestAuthorEntity(
         originalAuthorEntity.AuthorId,

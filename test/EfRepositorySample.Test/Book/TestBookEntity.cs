@@ -4,11 +4,12 @@
 
 namespace EfRepositorySample.Test.Book
 {
+  using Microsoft.EntityFrameworkCore;
+
   using EfRepositorySample.Author;
   using EfRepositorySample.Book;
   using EfRepositorySample.Data.Book;
   using EfRepositorySample.Test.Author;
-  using Microsoft.EntityFrameworkCore;
 
   public sealed class TestBookEntity : IBookEntity
   {
@@ -76,7 +77,7 @@ namespace EfRepositorySample.Test.Book
     public static Task<IBookEntity> AddAsync(DbContext dbContext) =>
       AddAsync(dbContext, new List<IAuthorEntity>());
 
-    public static async Task<IEnumerable<IBookEntity>> AddAsync(
+    public static async Task<List<IBookEntity>> AddAsync(
       DbContext dbContext, int books)
     {
       var bookEntityCollection = new List<BookEntity>();
@@ -98,6 +99,7 @@ namespace EfRepositorySample.Test.Book
       }
 
       return bookEntityCollection.Select(entity => new TestBookEntity(entity))
+                                 .OfType<IBookEntity>()
                                  .ToList();
     }
 

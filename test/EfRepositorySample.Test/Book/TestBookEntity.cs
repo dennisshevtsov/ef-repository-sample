@@ -67,7 +67,7 @@ namespace EfRepositorySample.Test.Book
 
       foreach (var authorEntity in dataBookEntity.BookAuthors)
       {
-        dbContext.Entry(authorEntity).State = EntityState.Deleted;
+        dbContext.Entry(authorEntity).State = EntityState.Detached;
       }
 
       return dataBookEntity;

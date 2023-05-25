@@ -40,18 +40,23 @@ namespace EfRepositorySample.Data.Book
     public Guid BookId { get => Id; set => Id = value; }
 
     /// <summary>Gets an object that represents a title of a book.</summary>
-    public string Title { get; }
+    public string Title { get; set; }
 
     /// <summary>Gets an object that represents a description of a book.</summary>
-    public string Description { get; }
+    public string Description { get; set; }
 
     /// <summary>Gets an object that represents a number of pages of a book.</summary>
-    public int Pages { get; }
+    public int Pages { get; set; }
 
     /// <summary>Gets an object that represents a collection of authors of this book.</summary>
-    public IEnumerable<IAuthorEntity> Authors => BookAuthors;
+    public IEnumerable<IAuthorEntity> Authors
+    {
+      get => BookAuthors;
+      set => BookAuthors = value.Select(entity => EntityBase.Create<IAuthorEntity, AuthorEntity>(entity))
+                                .ToList();
+    }
 
-    public ICollection<AuthorEntity> BookAuthors { get; }
+    public ICollection<AuthorEntity> BookAuthors { get; set; }
 
     /// <summary>Updates this entity.</summary>
     /// <param name="newEntity">An object that represents an entity from which this entity should be updated.</param>

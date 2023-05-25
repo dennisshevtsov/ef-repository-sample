@@ -7,7 +7,6 @@ namespace EfRepositorySample.Data.Book
   using EfRepositorySample.Author;
   using EfRepositorySample.Book;
   using EfRepositorySample.Data.Author;
-  using static System.Reflection.Metadata.BlobBuilder;
 
   /// <summary>Represents a book entity.</summary>
   public sealed class BookEntity : EntityBase, IBookEntity, IUpdatable<IBookEntity>

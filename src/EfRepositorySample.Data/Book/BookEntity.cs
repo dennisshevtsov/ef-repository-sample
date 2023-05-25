@@ -82,7 +82,7 @@ namespace EfRepositorySample.Data.Book
           BookAuthors.Remove(authorEntity);
         }
 
-        var addingAuthors = newBookEntity.Authors.Where(entity => !exitingAuthors.Contains(entity.BookId))
+        var addingAuthors = newBookEntity.Authors.Where(entity => !exitingAuthors.Contains(entity.AuthorId))
                                                  .ToList();
 
         foreach (var authorEntity in addingAuthors)

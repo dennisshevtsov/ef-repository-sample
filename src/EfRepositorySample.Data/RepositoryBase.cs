@@ -85,10 +85,9 @@ namespace EfRepositorySample.Data
     public async Task UpdateAsync(TEntity originalEntity, TEntity newEntity, IEnumerable<string> properties, CancellationToken cancellationToken)
     {
       var dbEntity = EntityBase.Create<TEntity, TEntityImpl>(originalEntity);
-      var dbEntityEntry = DbContext.Entry(originalEntity);
+      var dbEntityEntry = DbContext.Attach(originalEntity);
 
-      dbEntityEntry.State = EntityState.Unchanged;
-      dbEntity.Update(newEntity);
+      dbEntity.Update(newEntity, properties);
 
       await DbContext.SaveChangesAsync(cancellationToken);
       dbEntityEntry.State = EntityState.Detached;

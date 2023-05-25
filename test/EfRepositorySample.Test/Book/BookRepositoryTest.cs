@@ -9,7 +9,6 @@ namespace EfRepositorySample.Test.Book
   using EfRepositorySample.Book;
   using EfRepositorySample.Author;
   using EfRepositorySample.Test.Author;
-  using EfRepositorySample.Data.Author;
 
   [TestClass]
   public sealed class BookRepositoryTest : IntegrationTestBase
@@ -71,11 +70,7 @@ namespace EfRepositorySample.Test.Book
     [TestMethod]
     public async Task AddAsync_BookPassed_SavedBookReturned()
     {
-      var controlBookEntity = new TestBookEntity(
-        Guid.NewGuid().ToString(),
-        Guid.NewGuid().ToString(),
-        500,
-        new List<IAuthorEntity>());
+      var controlBookEntity = TestBookEntity.New(500, new List<IAuthorEntity>());
 
       var actualBookEntity =
         await _bookRepository.AddAsync(controlBookEntity, CancellationToken.None);
@@ -90,11 +85,8 @@ namespace EfRepositorySample.Test.Book
     [TestMethod]
     public async Task AddAsync_BookPassed_BookSaved()
     {
-      var controlBookEntity = new TestBookEntity(
-        Guid.NewGuid().ToString(),
-        Guid.NewGuid().ToString(),
-        500,
-        await TestAuthorEntity.AddAsync(DbContext, 5));
+      var controlBookEntity = TestBookEntity.New(
+        500, await TestAuthorEntity.AddAsync(DbContext, 5));
 
       var savedBookEntity =
         await _bookRepository.AddAsync(controlBookEntity, CancellationToken.None);
@@ -113,18 +105,32 @@ namespace EfRepositorySample.Test.Book
     [TestMethod]
     public async Task UpdateAsync_BookPassed_BookUpdated()
     {
-      var originalBookEntity = await TestBookEntity.AddAsync(DbContext);
+      var controlAuthorEntityCollection = await TestAuthorEntity.AddAsync(DbContext, 5);
+
+      var originalAuthorEntityCollection = new List<IAuthorEntity>
+      {
+        controlAuthorEntityCollection[0],
+        controlAuthorEntityCollection[1],
+        controlAuthorEntityCollection[2],
+      };
+      var originalBookEntity = await TestBookEntity.AddAsync(DbContext, originalAuthorEntityCollection);
+
+      var updatingAuthorEntityCollection = new List<IAuthorEntity>
+      {
+        controlAuthorEntityCollection[1],
+      };
       var updatingBookEntity = new TestBookEntity(
         originalBookEntity.BookId,
         Guid.NewGuid().ToString(),
         Guid.NewGuid().ToString(),
         800,
-        new List<IAuthorEntity>());
+        updatingAuthorEntityCollection);
       var updatingProperties = new[]
       {
         nameof(IBookEntity.Title),
         nameof(IBookEntity.Description),
         nameof(IBookEntity.Pages),
+        nameof(IBookEntity.Authors),
       };
 
       await _bookRepository.UpdateAsync(originalBookEntity, updatingBookEntity, updatingProperties, CancellationToken.None);
@@ -136,6 +142,7 @@ namespace EfRepositorySample.Test.Book
       Assert.AreEqual(updatingBookEntity.Title, actualBookEntity.Title);
       Assert.AreEqual(updatingBookEntity.Description, actualBookEntity.Description);
       Assert.AreEqual(updatingBookEntity.Pages, actualBookEntity.Pages);
+      TestAuthorEntity.AreEqual(updatingAuthorEntityCollection, actualBookEntity.Authors);
     }
 
     [TestMethod]

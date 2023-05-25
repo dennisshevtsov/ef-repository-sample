@@ -136,6 +136,7 @@ namespace EfRepositorySample.Test.Author
       Assert.AreEqual(updatingAuthorEntity.AuthorId, actualAuthorEntity.AuthorId);
       Assert.AreEqual(updatingAuthorEntity.Name, actualAuthorEntity.Name);
       Assert.AreEqual(updatingAuthorEntity.Bio, actualAuthorEntity.Bio);
+      TestBookEntity.AreEqual(updatingBookEntityCollection, actualAuthorEntity.Books);
     }
 
     [TestMethod]

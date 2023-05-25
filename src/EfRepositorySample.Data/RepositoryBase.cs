@@ -88,7 +88,7 @@ namespace EfRepositorySample.Data
       var dbEntityEntry = DbContext.Entry(originalEntity);
 
       dbEntityEntry.State = EntityState.Unchanged;
-      dbEntity.Update(newEntity);
+      dbEntity.Update(newEntity, properties);
 
       await DbContext.SaveChangesAsync(cancellationToken);
       dbEntityEntry.State = EntityState.Detached;

@@ -68,7 +68,7 @@ namespace EfRepositorySample.Test.Author
     public static Task<IAuthorEntity> AddAsync(DbContext dbContext) =>
       TestAuthorEntity.AddAsync(dbContext, new List<IBookEntity>());
 
-    public static async Task<IEnumerable<IAuthorEntity>> AddAsync(DbContext dbContext, int authors)
+    public static async Task<List<IAuthorEntity>> AddAsync(DbContext dbContext, int authors)
     {
       var authorEntityCollection = new List<AuthorEntity>();
 
@@ -89,6 +89,7 @@ namespace EfRepositorySample.Test.Author
       }
 
       return authorEntityCollection.Select(entity => new TestAuthorEntity(entity))
+                                   .OfType<IAuthorEntity>()
                                    .ToList();
     }
 
@@ -105,11 +106,11 @@ namespace EfRepositorySample.Test.Author
     {
       var controlAuthorEntityList =
         controlAuthorEntityCollection.OrderBy(entity => entity.AuthorId)
-                                   .ToList();
+                                     .ToList();
 
       var actualAuthorEntityList =
         actualAuthorEntityCollection.OrderBy(entity => entity.AuthorId)
-                                  .ToList();
+                                    .ToList();
 
       Assert.AreEqual(controlAuthorEntityList.Count, actualAuthorEntityList.Count);
 

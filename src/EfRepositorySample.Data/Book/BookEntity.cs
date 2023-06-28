@@ -58,6 +58,19 @@ namespace EfRepositorySample.Data.Book
 
     public ICollection<AuthorEntity> BookAuthors { get; set; }
 
+    /// <summary>Gets a collection of relation that this entity has.</summary>
+    /// <param name="relations">An object that represents a collection of relations.</param>
+    /// <returns>An object that represents a collection of relation that this entity has.</returns>
+    public override IEnumerable<string> Relations(IEnumerable<string> relations)
+    {
+      if (relations.Contains(nameof(Authors)))
+      {
+        return new[] { nameof(BookAuthors) };
+      }
+
+      return Array.Empty<string>();
+    }
+
     /// <summary>Updates this entity.</summary>
     /// <param name="newEntity">An object that represents an entity from which this entity should be updated.</param>
     public void Update(IBookEntity newEntity) => base.Update(newEntity);

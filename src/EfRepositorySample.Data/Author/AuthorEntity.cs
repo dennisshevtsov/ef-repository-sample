@@ -14,8 +14,8 @@ namespace EfRepositorySample.Data.Author
     /// <summary>Initializes a new instance of the <see cref="EfRepositorySample.Data.Author.AuthorEntity"/> class.</summary>
     public AuthorEntity()
     {
-      Name = string.Empty;
-      Bio = string.Empty;
+      Name        = string.Empty;
+      Bio         = string.Empty;
       AuthorBooks = new List<BookEntity>();
     }
 
@@ -30,8 +30,8 @@ namespace EfRepositorySample.Data.Author
     /// <param name="authorEntity">An object that represents an author entity.</param>
     public AuthorEntity(IAuthorEntity authorEntity) : this((IAuthorIdentity)authorEntity)
     {
-      Name = authorEntity.Name;
-      Bio = authorEntity.Bio;
+      Name        = authorEntity.Name;
+      Bio         = authorEntity.Bio;
       AuthorBooks = BookEntity.Copy(authorEntity.Books);
     }
 
@@ -54,6 +54,19 @@ namespace EfRepositorySample.Data.Author
 
     /// <summary>Gets an object that represents a collection of this author's books.</summary>
     public ICollection<BookEntity> AuthorBooks { get; set; }
+
+    /// <summary>Gets a collection of relation that this entity has.</summary>
+    /// <param name="relations">An object that represents a collection of relations.</param>
+    /// <returns>An object that represents a collection of relation that this entity has.</returns>
+    public override IEnumerable<string> Relations(IEnumerable<string> relations)
+    {
+      if (relations.Contains(nameof(Books)))
+      {
+        return new[] { nameof(AuthorBooks) };
+      }
+
+      return Array.Empty<string>();
+    }
 
     /// <summary>Updates this entity.</summary>
     /// <param name="newEntity">An object that represents an entity from which this entity should be updated.</param>

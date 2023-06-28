@@ -27,11 +27,7 @@ public static class DataServicesExtensions
     services.AddDbContext<DbContext, AppDbContext>((provider, builder) =>
     {
       var options = provider.GetRequiredService<IOptions<DatabaseOptions>>().Value;
-
-      if (string.IsNullOrWhiteSpace(options.ConnectionString))
-      {
-        throw new ArgumentNullException(nameof(DatabaseOptions.ConnectionString));
-      }
+      ArgumentException.ThrowIfNullOrEmpty(options.ConnectionString);
 
       builder.UseNpgsql(options.ConnectionString);
     });

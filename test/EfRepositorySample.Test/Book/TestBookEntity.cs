@@ -2,139 +2,138 @@
 // Licensed under the MIT License.
 // See LICENSE in the project root for license information.
 
-namespace EfRepositorySample.Test.Book
+using Microsoft.EntityFrameworkCore;
+
+using EfRepositorySample.Author;
+using EfRepositorySample.Book;
+using EfRepositorySample.Data.Book;
+using EfRepositorySample.Test.Author;
+
+namespace EfRepositorySample.Test.Book;
+
+public sealed class TestBookEntity : IBookEntity
 {
-  using Microsoft.EntityFrameworkCore;
+  public TestBookEntity(IBookEntity bookEntity)
+    : this(bookEntity.BookId,
+           bookEntity.Title,
+           bookEntity.Description,
+           bookEntity.Pages,
+           bookEntity.Authors)
+  { }
 
-  using EfRepositorySample.Author;
-  using EfRepositorySample.Book;
-  using EfRepositorySample.Data.Book;
-  using EfRepositorySample.Test.Author;
-
-  public sealed class TestBookEntity : IBookEntity
+  public TestBookEntity(string title, string description, int pages, IEnumerable<IAuthorEntity> authors)
   {
-    public TestBookEntity(IBookEntity bookEntity)
-      : this(bookEntity.BookId,
-             bookEntity.Title,
-             bookEntity.Description,
-             bookEntity.Pages,
-             bookEntity.Authors)
-    { }
+    Title       = title;
+    Description = description;
+    Pages       = pages;
+    Authors     = authors.Select(entity => new TestAuthorEntity(entity))
+                         .ToList();
+  }
 
-    public TestBookEntity(string title, string description, int pages, IEnumerable<IAuthorEntity> authors)
+  public TestBookEntity(Guid bookId, string title, string description, int pages, IEnumerable<IAuthorEntity> authors)
+    : this(title, description, pages, authors)
+  {
+    BookId = bookId;
+  }
+
+  public Guid BookId { get; }
+
+  public string Title { get; }
+
+  public string Description { get; }
+
+  public int Pages { get; }
+
+  public IEnumerable<IAuthorEntity> Authors { get; }
+
+  public static TestBookEntity New(int pages, IEnumerable<IAuthorEntity> authors) =>
+    new TestBookEntity(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), pages, authors);
+
+  public static TestBookEntity New(int pages) => TestBookEntity.New(pages, new List<IAuthorEntity>());
+
+  public static async Task<IBookEntity> AddAsync(DbContext dbContext, IEnumerable<IAuthorEntity> authors)
+  {
+    var testBookEntity = TestBookEntity.New(500, authors);
+    var dataBookEntity = new BookEntity(testBookEntity);
+
+    var dataBookEntityEntry = dbContext.Add(dataBookEntity);
+
+    foreach (var authorEntity in dataBookEntity.BookAuthors)
     {
-      Title       = title;
-      Description = description;
-      Pages       = pages;
-      Authors     = authors.Select(entity => new TestAuthorEntity(entity))
-                           .ToList();
+      dbContext.Entry(authorEntity).State = EntityState.Unchanged;
     }
 
-    public TestBookEntity(Guid bookId, string title, string description, int pages, IEnumerable<IAuthorEntity> authors)
-      : this(title, description, pages, authors)
+    await dbContext.SaveChangesAsync();
+    dataBookEntityEntry.State = EntityState.Detached;
+
+    foreach (var authorEntity in dataBookEntity.BookAuthors)
     {
-      BookId = bookId;
+      dbContext.Entry(authorEntity).State = EntityState.Detached;
     }
 
-    public Guid BookId { get; }
+    return dataBookEntity;
+  }
 
-    public string Title { get; }
+  public static Task<IBookEntity> AddAsync(DbContext dbContext) =>
+    AddAsync(dbContext, new List<IAuthorEntity>());
 
-    public string Description { get; }
+  public static async Task<List<IBookEntity>> AddAsync(
+    DbContext dbContext, int books)
+  {
+    var bookEntityCollection = new List<BookEntity>();
 
-    public int Pages { get; }
-
-    public IEnumerable<IAuthorEntity> Authors { get; }
-
-    public static TestBookEntity New(int pages, IEnumerable<IAuthorEntity> authors) =>
-      new TestBookEntity(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), pages, authors);
-
-    public static TestBookEntity New(int pages) => TestBookEntity.New(pages, new List<IAuthorEntity>());
-
-    public static async Task<IBookEntity> AddAsync(DbContext dbContext, IEnumerable<IAuthorEntity> authors)
+    for (int i = 0; i < books; i++)
     {
-      var testBookEntity = TestBookEntity.New(500, authors);
+      var testBookEntity = TestBookEntity.New(i * 100);
       var dataBookEntity = new BookEntity(testBookEntity);
 
-      var dataBookEntityEntry = dbContext.Add(dataBookEntity);
-
-      foreach (var authorEntity in dataBookEntity.BookAuthors)
-      {
-        dbContext.Entry(authorEntity).State = EntityState.Unchanged;
-      }
-
-      await dbContext.SaveChangesAsync();
-      dataBookEntityEntry.State = EntityState.Detached;
-
-      foreach (var authorEntity in dataBookEntity.BookAuthors)
-      {
-        dbContext.Entry(authorEntity).State = EntityState.Detached;
-      }
-
-      return dataBookEntity;
+      bookEntityCollection.Add(dataBookEntity);
     }
 
-    public static Task<IBookEntity> AddAsync(DbContext dbContext) =>
-      AddAsync(dbContext, new List<IAuthorEntity>());
+    dbContext.AddRange(bookEntityCollection);
+    await dbContext.SaveChangesAsync();
 
-    public static async Task<List<IBookEntity>> AddAsync(
-      DbContext dbContext, int books)
+    foreach (var dataBookEntity in bookEntityCollection)
     {
-      var bookEntityCollection = new List<BookEntity>();
+      dbContext.Entry(dataBookEntity).State = EntityState.Detached;
+    }
 
-      for (int i = 0; i < books; i++)
-      {
-        var testBookEntity = TestBookEntity.New(i * 100);
-        var dataBookEntity = new BookEntity(testBookEntity);
+    return bookEntityCollection.Select(entity => new TestBookEntity(entity))
+                               .OfType<IBookEntity>()
+                               .ToList();
+  }
 
-        bookEntityCollection.Add(dataBookEntity);
-      }
+  public static async Task<IBookEntity?> GetAsync(DbContext dbContext, IBookIdentity identity) =>
+    await dbContext.Set<BookEntity>()
+                   .AsNoTracking()
+                   .Include(entity => entity.BookAuthors)
+                   .Where(entity => entity.Id == identity.BookId)
+                   .FirstOrDefaultAsync();
 
-      dbContext.AddRange(bookEntityCollection);
-      await dbContext.SaveChangesAsync();
-
-      foreach (var dataBookEntity in bookEntityCollection)
-      {
-        dbContext.Entry(dataBookEntity).State = EntityState.Detached;
-      }
-
-      return bookEntityCollection.Select(entity => new TestBookEntity(entity))
-                                 .OfType<IBookEntity>()
+  public static void AreEqual(
+    IEnumerable<IBookEntity> controlBookEntityCollection,
+    IEnumerable<IBookEntity> actualBookEntityCollection)
+  {
+    var controlBookEntityList =
+      controlBookEntityCollection.OrderBy(entity => entity.BookId)
                                  .ToList();
-    }
 
-    public static async Task<IBookEntity?> GetAsync(DbContext dbContext, IBookIdentity identity) =>
-      await dbContext.Set<BookEntity>()
-                     .AsNoTracking()
-                     .Include(entity => entity.BookAuthors)
-                     .Where(entity => entity.Id == identity.BookId)
-                     .FirstOrDefaultAsync();
+    var actualBookEntityList =
+      actualBookEntityCollection.OrderBy(entity => entity.BookId)
+                                .ToList();
 
-    public static void AreEqual(
-      IEnumerable<IBookEntity> controlBookEntityCollection,
-      IEnumerable<IBookEntity> actualBookEntityCollection)
+    Assert.AreEqual(controlBookEntityList.Count, actualBookEntityList.Count);
+
+    for (int i = 0; i < controlBookEntityList.Count; i++)
     {
-      var controlBookEntityList =
-        controlBookEntityCollection.OrderBy(entity => entity.BookId)
-                                   .ToList();
-
-      var actualBookEntityList =
-        actualBookEntityCollection.OrderBy(entity => entity.BookId)
-                                  .ToList();
-
-      Assert.AreEqual(controlBookEntityList.Count, actualBookEntityList.Count);
-
-      for (int i = 0; i < controlBookEntityList.Count; i++)
-      {
-        TestBookEntity.AreEqual(controlBookEntityList[i], actualBookEntityList[i]);
-      }
+      TestBookEntity.AreEqual(controlBookEntityList[i], actualBookEntityList[i]);
     }
+  }
 
-    public static void AreEqual(IBookEntity control, IBookEntity actual)
-    {
-      Assert.AreEqual(control.Title, actual.Title);
-      Assert.AreEqual(control.Description, actual.Description);
-      Assert.AreEqual(control.Pages, actual.Pages);
-    }
+  public static void AreEqual(IBookEntity control, IBookEntity actual)
+  {
+    Assert.AreEqual(control.Title, actual.Title);
+    Assert.AreEqual(control.Description, actual.Description);
+    Assert.AreEqual(control.Pages, actual.Pages);
   }
 }

@@ -2,130 +2,129 @@
 // Licensed under the MIT License.
 // See LICENSE in the project root for license information.
 
-namespace EfRepositorySample.Test.Author
+using Microsoft.EntityFrameworkCore;
+
+using EfRepositorySample.Author;
+using EfRepositorySample.Book;
+using EfRepositorySample.Data.Author;
+
+namespace EfRepositorySample.Test.Author;
+
+public sealed class TestAuthorEntity : IAuthorEntity
 {
-  using Microsoft.EntityFrameworkCore;
+  public TestAuthorEntity(IAuthorEntity authorEntity)
+    : this(authorEntity.AuthorId, authorEntity.Name, authorEntity.Bio, authorEntity.Books)
+  { }
 
-  using EfRepositorySample.Author;
-  using EfRepositorySample.Book;
-  using EfRepositorySample.Data.Author;
-
-  public sealed class TestAuthorEntity : IAuthorEntity
+  public TestAuthorEntity(string name, string bio, IEnumerable<IBookEntity> books)
   {
-    public TestAuthorEntity(IAuthorEntity authorEntity)
-      : this(authorEntity.AuthorId, authorEntity.Name, authorEntity.Bio, authorEntity.Books)
-    { }
+    Name  = name;
+    Bio   = bio;
+    Books = books;
+  }
 
-    public TestAuthorEntity(string name, string bio, IEnumerable<IBookEntity> books)
+  public TestAuthorEntity(Guid authorId, string name, string bio, IEnumerable<IBookEntity> books)
+    : this(name, bio, books)
+  {
+    AuthorId = authorId;
+  }
+
+  public Guid AuthorId { get; }
+
+  public string Name { get; }
+
+  public string Bio { get; }
+
+  public IEnumerable<IBookEntity> Books { get; }
+
+  public static TestAuthorEntity New(IEnumerable<IBookEntity> books) =>
+    new TestAuthorEntity(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), books);
+
+  public static TestAuthorEntity New() => New(new List<IBookEntity>());
+
+  public static async Task<IAuthorEntity> AddAsync(DbContext dbContext, IEnumerable<IBookEntity> books)
+  {
+    var testAuthorEntity = TestAuthorEntity.New(books);
+    var dataAuthorEntity = new AuthorEntity(testAuthorEntity);
+
+    var dataAuthorEntityEntry = dbContext.Add(dataAuthorEntity);
+
+    foreach (var bookEntity in dataAuthorEntity.AuthorBooks)
     {
-      Name  = name;
-      Bio   = bio;
-      Books = books;
+      dbContext.Entry(bookEntity).State = EntityState.Unchanged;
     }
 
-    public TestAuthorEntity(Guid authorId, string name, string bio, IEnumerable<IBookEntity> books)
-      : this(name, bio, books)
+    await dbContext.SaveChangesAsync();
+    dataAuthorEntityEntry.State = EntityState.Detached;
+
+    foreach (var bookEntity in dataAuthorEntity.AuthorBooks)
     {
-      AuthorId = authorId;
+      dbContext.Entry(bookEntity).State = EntityState.Detached;
     }
 
-    public Guid AuthorId { get; }
+    return dataAuthorEntity;
+  }
 
-    public string Name { get; }
+  public static Task<IAuthorEntity> AddAsync(DbContext dbContext) =>
+    TestAuthorEntity.AddAsync(dbContext, new List<IBookEntity>());
 
-    public string Bio { get; }
+  public static async Task<List<IAuthorEntity>> AddAsync(DbContext dbContext, int authors)
+  {
+    var authorEntityCollection = new List<AuthorEntity>();
 
-    public IEnumerable<IBookEntity> Books { get; }
-
-    public static TestAuthorEntity New(IEnumerable<IBookEntity> books) =>
-      new TestAuthorEntity(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), books);
-
-    public static TestAuthorEntity New() => New(new List<IBookEntity>());
-
-    public static async Task<IAuthorEntity> AddAsync(DbContext dbContext, IEnumerable<IBookEntity> books)
+    for (int i = 0; i < authors; i++)
     {
-      var testAuthorEntity = TestAuthorEntity.New(books);
+      var testAuthorEntity = TestAuthorEntity.New();
       var dataAuthorEntity = new AuthorEntity(testAuthorEntity);
 
-      var dataAuthorEntityEntry = dbContext.Add(dataAuthorEntity);
-
-      foreach (var bookEntity in dataAuthorEntity.AuthorBooks)
-      {
-        dbContext.Entry(bookEntity).State = EntityState.Unchanged;
-      }
-
-      await dbContext.SaveChangesAsync();
-      dataAuthorEntityEntry.State = EntityState.Detached;
-
-      foreach (var bookEntity in dataAuthorEntity.AuthorBooks)
-      {
-        dbContext.Entry(bookEntity).State = EntityState.Detached;
-      }
-
-      return dataAuthorEntity;
+      authorEntityCollection.Add(dataAuthorEntity);
     }
 
-    public static Task<IAuthorEntity> AddAsync(DbContext dbContext) =>
-      TestAuthorEntity.AddAsync(dbContext, new List<IBookEntity>());
+    dbContext.AddRange(authorEntityCollection);
+    await dbContext.SaveChangesAsync();
 
-    public static async Task<List<IAuthorEntity>> AddAsync(DbContext dbContext, int authors)
+    foreach (var dataAuthorEntity in authorEntityCollection)
     {
-      var authorEntityCollection = new List<AuthorEntity>();
+      dbContext.Entry(dataAuthorEntity).State = EntityState.Detached;
+    }
 
-      for (int i = 0; i < authors; i++)
-      {
-        var testAuthorEntity = TestAuthorEntity.New();
-        var dataAuthorEntity = new AuthorEntity(testAuthorEntity);
+    return authorEntityCollection.Select(entity => new TestAuthorEntity(entity))
+                                 .OfType<IAuthorEntity>()
+                                 .ToList();
+  }
 
-        authorEntityCollection.Add(dataAuthorEntity);
-      }
+  public static async Task<IAuthorEntity?> GetAsync(DbContext dbContext, IAuthorIdentity identity) =>
+    await dbContext.Set<AuthorEntity>()
+                   .AsNoTracking()
+                   .Include(entity => entity.AuthorBooks)
+                   .Where(entity => entity.Id == identity.AuthorId)
+                   .FirstOrDefaultAsync();
 
-      dbContext.AddRange(authorEntityCollection);
-      await dbContext.SaveChangesAsync();
-
-      foreach (var dataAuthorEntity in authorEntityCollection)
-      {
-        dbContext.Entry(dataAuthorEntity).State = EntityState.Detached;
-      }
-
-      return authorEntityCollection.Select(entity => new TestAuthorEntity(entity))
-                                   .OfType<IAuthorEntity>()
+  public static void AreEqual(
+    IEnumerable<IAuthorEntity> controlAuthorEntityCollection,
+    IEnumerable<IAuthorEntity> actualAuthorEntityCollection)
+  {
+    var controlAuthorEntityList =
+      controlAuthorEntityCollection.OrderBy(entity => entity.AuthorId)
                                    .ToList();
-    }
 
-    public static async Task<IAuthorEntity?> GetAsync(DbContext dbContext, IAuthorIdentity identity) =>
-      await dbContext.Set<AuthorEntity>()
-                     .AsNoTracking()
-                     .Include(entity => entity.AuthorBooks)
-                     .Where(entity => entity.Id == identity.AuthorId)
-                     .FirstOrDefaultAsync();
+    var actualAuthorEntityList =
+      actualAuthorEntityCollection.OrderBy(entity => entity.AuthorId)
+                                  .ToList();
 
-    public static void AreEqual(
-      IEnumerable<IAuthorEntity> controlAuthorEntityCollection,
-      IEnumerable<IAuthorEntity> actualAuthorEntityCollection)
+    Assert.AreEqual(controlAuthorEntityList.Count, actualAuthorEntityList.Count);
+
+    for (int i = 0; i < controlAuthorEntityList.Count; i++)
     {
-      var controlAuthorEntityList =
-        controlAuthorEntityCollection.OrderBy(entity => entity.AuthorId)
-                                     .ToList();
-
-      var actualAuthorEntityList =
-        actualAuthorEntityCollection.OrderBy(entity => entity.AuthorId)
-                                    .ToList();
-
-      Assert.AreEqual(controlAuthorEntityList.Count, actualAuthorEntityList.Count);
-
-      for (int i = 0; i < controlAuthorEntityList.Count; i++)
-      {
-        TestAuthorEntity.AreEqual(controlAuthorEntityList[i], actualAuthorEntityList[i]);
-      }
+      TestAuthorEntity.AreEqual(controlAuthorEntityList[i], actualAuthorEntityList[i]);
     }
+  }
 
-    public static void AreEqual(
-      IAuthorEntity controlAuthorEntity,
-      IAuthorEntity actualAuthorEntity)
-    {
-      Assert.AreEqual(controlAuthorEntity.Name, actualAuthorEntity.Name);
-      Assert.AreEqual(controlAuthorEntity.Bio, actualAuthorEntity.Bio);
-    }
+  public static void AreEqual(
+    IAuthorEntity controlAuthorEntity,
+    IAuthorEntity actualAuthorEntity)
+  {
+    Assert.AreEqual(controlAuthorEntity.Name, actualAuthorEntity.Name);
+    Assert.AreEqual(controlAuthorEntity.Bio, actualAuthorEntity.Bio);
   }
 }

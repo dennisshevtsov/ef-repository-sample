@@ -4,9 +4,6 @@
 
 namespace EfRepositorySample.Data.Author
 {
-  using System.Linq;
-  using System.Collections.Generic;
-
   using Microsoft.EntityFrameworkCore;
 
   using EfRepositorySample.Author;
@@ -17,20 +14,5 @@ namespace EfRepositorySample.Data.Author
     /// <summary>Initializes a new instance of the <see cref="EfRepositorySample.Data.Author.AuthorRepository"/> class.</summary>
     /// <param name="dbContext">An object that represents a session with the database and can be used to query and save instances of your entities.</param>
     public AuthorRepository(DbContext dbContext) : base(dbContext) { }
-
-    /// <summary>Includes relations.</summary>
-    /// <param name="query">An object that represents a query of entities.</param>
-    /// <param name="relations">An object that represents a collection of relations to load.</param>
-    /// <returns>An object that represents a query of entities.</returns>
-    protected override IQueryable<AuthorEntity> IncludeRelations(
-      IQueryable<AuthorEntity> query, IEnumerable<string> relations)
-    {
-      if (relations.Contains(nameof(IAuthorEntity.Books)))
-      {
-        query = query.Include(entity => entity.AuthorBooks);
-      }
-
-      return query;
-    }
   }
 }

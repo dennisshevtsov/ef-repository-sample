@@ -31,22 +31,18 @@ namespace EfRepositorySample.Data
     /// <returns>An object that represents an asynchronous operation that produces a result at some time in the future.</returns>
     public virtual async Task<TEntity?> GetAsync(TIdentity identity, IEnumerable<string> relations, CancellationToken cancellationToken)
     {
-      var id    = EntityBase.Create<TIdentity, TEntityImpl>(identity).Id;
-      var query = DbContext.Set<TEntityImpl>()
-                           .AsNoTracking()
-                           .Where(entity => entity.Id == id);
+      TEntityImpl dataEntity = EntityBase.Create<TIdentity, TEntityImpl>(identity);
+      IQueryable<TEntityImpl> query = DbContext.Set<TEntityImpl>()
+                                               .AsNoTracking()
+                                               .Where(entity => entity.Id == dataEntity.Id);
 
-      query = IncludeRelations(query, relations);
+      foreach (string relation in dataEntity.Relations(relations))
+      {
+        query = query.Include(relation);
+      }
 
       return await query.SingleOrDefaultAsync(cancellationToken);
     }
-
-    /// <summary>Includes relations.</summary>
-    /// <param name="query">An object that represents a query of entities.</param>
-    /// <param name="relations">An object that represents a collection of relations to load.</param>
-    /// <returns>An object that represents a query of entities.</returns>
-    protected virtual IQueryable<TEntityImpl> IncludeRelations(
-      IQueryable<TEntityImpl> query, IEnumerable<string> relations) => query;
 
     /// <summary>Adds an entity.</summary>
     /// <param name="entity">An object that represents an entity.</param>

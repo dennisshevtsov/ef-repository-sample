@@ -9,7 +9,7 @@ namespace EfRepositorySample.Data;
 
 /// <summary>Provides a simple API to persistence of an entity.</summary>
 public abstract class RepositoryBase<TEntityImpl, TEntity, TIdentity> : IRepository<TEntity, TIdentity>
-  where TEntityImpl : EntityBase, TEntity
+  where TEntityImpl : EntityBase, TEntity, IUpdatable<TEntity>
   where TEntity     : class, TIdentity
   where TIdentity   : class
 {

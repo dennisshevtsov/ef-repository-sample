@@ -7,7 +7,7 @@ using System.Reflection;
 namespace EfRepositorySample.Data;
 
 /// <summary>Represents an entity base.</summary>
-public abstract class EntityBase : IUpdatable<object>
+public abstract class EntityBase
 {
   /// <summary>Gets an object that represents an ID of an entity.</summary>
   public Guid Id { get; protected set; }

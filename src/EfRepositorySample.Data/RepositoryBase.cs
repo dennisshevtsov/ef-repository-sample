@@ -2,9 +2,8 @@
 // Licensed under the MIT License.
 // See LICENSE in the project root for license information.
 
-using System.Linq;
-
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace EfRepositorySample.Data;
 
@@ -50,16 +49,16 @@ public abstract class RepositoryBase<TEntityImpl, TEntity, TIdentity> : IReposit
   /// <returns>An object that represents an asynchronous operation that produces a result at some time in the future.</returns>
   public virtual async Task<TEntity> AddAsync(TEntity entity, CancellationToken cancellationToken)
   {
-    var dbEntity = EntityBase.Create<TEntity, TEntityImpl>(entity);
-    var dbEntityEntry = DbContext.Entry(dbEntity);
+    TEntityImpl dataEntity = EntityBase.Create<TEntity, TEntityImpl>(entity);
+    EntityEntry<TEntityImpl> dataEntityEntry = DbContext.Entry(dataEntity);
 
-    dbEntityEntry.State = EntityState.Added;
+    dataEntityEntry.State = EntityState.Added;
 
-    foreach (var collectionEntry in dbEntityEntry.Collections)
+    foreach (CollectionEntry collectionEntry in dataEntityEntry.Collections)
     {
       if (collectionEntry.CurrentValue != null)
       {
-        foreach (var collectionItemEntity in collectionEntry.CurrentValue)
+        foreach (object collectionItemEntity in collectionEntry.CurrentValue)
         {
           DbContext.Entry(collectionItemEntity).State = EntityState.Unchanged;
         }
@@ -67,9 +66,9 @@ public abstract class RepositoryBase<TEntityImpl, TEntity, TIdentity> : IReposit
     }
 
     await DbContext.SaveChangesAsync(cancellationToken);
-    dbEntityEntry.State = EntityState.Detached;
+    dataEntityEntry.State = EntityState.Detached;
 
-    return dbEntity;
+    return dataEntity;
   }
 
   /// <summary>Updates an entity.</summary>
@@ -80,13 +79,13 @@ public abstract class RepositoryBase<TEntityImpl, TEntity, TIdentity> : IReposit
   /// <returns>An object that represents an asynchronous operation.</returns>
   public async Task UpdateAsync(TEntity originalEntity, TEntity newEntity, IEnumerable<string> properties, CancellationToken cancellationToken)
   {
-    var dbEntity = EntityBase.Create<TEntity, TEntityImpl>(originalEntity);
-    var dbEntityEntry = DbContext.Attach(originalEntity);
+    TEntityImpl dataEntity = EntityBase.Create<TEntity, TEntityImpl>(originalEntity);
+    EntityEntry<TEntityImpl> dataEntityEntry = DbContext.Attach(dataEntity);
 
-    dbEntity.Update(newEntity, properties);
+    dataEntity.Update(newEntity, properties);
 
     await DbContext.SaveChangesAsync(cancellationToken);
-    dbEntityEntry.State = EntityState.Detached;
+    dataEntityEntry.State = EntityState.Detached;
   }
 
   /// <summary>Deletes an entity.</summary>

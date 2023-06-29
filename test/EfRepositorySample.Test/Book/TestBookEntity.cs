@@ -3,9 +3,11 @@
 // See LICENSE in the project root for license information.
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 using EfRepositorySample.Author;
 using EfRepositorySample.Book;
+using EfRepositorySample.Data.Author;
 using EfRepositorySample.Data.Book;
 using EfRepositorySample.Test.Author;
 
@@ -53,12 +55,12 @@ public sealed class TestBookEntity : IBookEntity
 
   public static async Task<IBookEntity> AddAsync(DbContext dbContext, IEnumerable<IAuthorEntity> authors)
   {
-    var testBookEntity = TestBookEntity.New(500, authors);
-    var dataBookEntity = new BookEntity(testBookEntity);
+    TestBookEntity testBookEntity = TestBookEntity.New(500, authors);
+    BookEntity dataBookEntity = new(testBookEntity);
 
-    var dataBookEntityEntry = dbContext.Add(dataBookEntity);
+    EntityEntry<BookEntity> dataBookEntityEntry = dbContext.Add(dataBookEntity);
 
-    foreach (var authorEntity in dataBookEntity.BookAuthors)
+    foreach (AuthorEntity authorEntity in dataBookEntity.BookAuthors)
     {
       dbContext.Entry(authorEntity).State = EntityState.Unchanged;
     }
@@ -66,7 +68,7 @@ public sealed class TestBookEntity : IBookEntity
     await dbContext.SaveChangesAsync();
     dataBookEntityEntry.State = EntityState.Detached;
 
-    foreach (var authorEntity in dataBookEntity.BookAuthors)
+    foreach (AuthorEntity authorEntity in dataBookEntity.BookAuthors)
     {
       dbContext.Entry(authorEntity).State = EntityState.Detached;
     }
@@ -80,12 +82,12 @@ public sealed class TestBookEntity : IBookEntity
   public static async Task<List<IBookEntity>> AddAsync(
     DbContext dbContext, int books)
   {
-    var bookEntityCollection = new List<BookEntity>();
+    List<BookEntity> bookEntityCollection = new();
 
     for (int i = 0; i < books; i++)
     {
-      var testBookEntity = TestBookEntity.New(i * 100);
-      var dataBookEntity = new BookEntity(testBookEntity);
+      TestBookEntity testBookEntity = TestBookEntity.New(i * 100);
+      BookEntity dataBookEntity     = new(testBookEntity);
 
       bookEntityCollection.Add(dataBookEntity);
     }
@@ -114,11 +116,11 @@ public sealed class TestBookEntity : IBookEntity
     IEnumerable<IBookEntity> controlBookEntityCollection,
     IEnumerable<IBookEntity> actualBookEntityCollection)
   {
-    var controlBookEntityList =
+    List<IBookEntity> controlBookEntityList =
       controlBookEntityCollection.OrderBy(entity => entity.BookId)
                                  .ToList();
 
-    var actualBookEntityList =
+    List<IBookEntity> actualBookEntityList =
       actualBookEntityCollection.OrderBy(entity => entity.BookId)
                                 .ToList();
 

@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 // See LICENSE in the project root for license information.
 
+using System.Reflection;
+
 namespace EfRepositorySample.Data;
 
 /// <summary>Represents an entity base.</summary>
@@ -19,8 +21,8 @@ public abstract class EntityBase : IUpdatable<object>
   /// <param name="newEntity">An object that represents an entity from which this entity should be updated.</param>
   public void Update(object newEntity)
   {
-    var updatingProperties = GetUpdatingProperties();
-    var updatedProperties  = updatingProperties;
+    ISet<string> updatingProperties = GetUpdatingProperties();
+    ISet<string> updatedProperties  = updatingProperties;
 
     Update(newEntity, updatedProperties, updatingProperties);
   }
@@ -33,7 +35,7 @@ public abstract class EntityBase : IUpdatable<object>
 
   protected virtual void Update(object newEntity, IEnumerable<string> updatedProperties, ISet<string> updatingProperties)
   {
-    foreach (var property in updatedProperties)
+    foreach (string property in updatedProperties)
     {
       if (updatingProperties.Contains(property))
       {
@@ -44,11 +46,11 @@ public abstract class EntityBase : IUpdatable<object>
 
   protected virtual void Update(object newEntity, string property)
   {
-    var originalProperty = GetType().GetProperty(property)!;
-    var newProperty = newEntity.GetType().GetProperty(property)!;
+    PropertyInfo originalProperty = GetType().GetProperty(property)!;
+    PropertyInfo newProperty      = newEntity.GetType().GetProperty(property)!;
 
-    var originalValue = originalProperty.GetValue(this);
-    var newValue = newProperty.GetValue(newEntity);
+    object? originalValue = originalProperty.GetValue(this);
+    object? newValue      = newProperty.GetValue(newEntity);
 
     if (!object.Equals(originalValue, newValue))
     {

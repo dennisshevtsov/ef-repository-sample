@@ -3,6 +3,7 @@
 // See LICENSE in the project root for license information.
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 using EfRepositorySample.Author;
 using EfRepositorySample.Book;
@@ -44,10 +45,10 @@ public sealed class TestAuthorEntity : IAuthorEntity
 
   public static async Task<IAuthorEntity> AddAsync(DbContext dbContext, IEnumerable<IBookEntity> books)
   {
-    var testAuthorEntity = TestAuthorEntity.New(books);
-    var dataAuthorEntity = new AuthorEntity(testAuthorEntity);
+    TestAuthorEntity testAuthorEntity = TestAuthorEntity.New(books);
+    AuthorEntity     dataAuthorEntity = new(testAuthorEntity);
 
-    var dataAuthorEntityEntry = dbContext.Add(dataAuthorEntity);
+    EntityEntry<AuthorEntity> dataAuthorEntityEntry = dbContext.Add(dataAuthorEntity);
 
     foreach (var bookEntity in dataAuthorEntity.AuthorBooks)
     {
@@ -70,12 +71,12 @@ public sealed class TestAuthorEntity : IAuthorEntity
 
   public static async Task<List<IAuthorEntity>> AddAsync(DbContext dbContext, int authors)
   {
-    var authorEntityCollection = new List<AuthorEntity>();
+    List<AuthorEntity> authorEntityCollection = new();
 
     for (int i = 0; i < authors; i++)
     {
-      var testAuthorEntity = TestAuthorEntity.New();
-      var dataAuthorEntity = new AuthorEntity(testAuthorEntity);
+      TestAuthorEntity testAuthorEntity = TestAuthorEntity.New();
+      AuthorEntity     dataAuthorEntity = new(testAuthorEntity);
 
       authorEntityCollection.Add(dataAuthorEntity);
     }
@@ -104,11 +105,11 @@ public sealed class TestAuthorEntity : IAuthorEntity
     IEnumerable<IAuthorEntity> controlAuthorEntityCollection,
     IEnumerable<IAuthorEntity> actualAuthorEntityCollection)
   {
-    var controlAuthorEntityList =
+    List<IAuthorEntity> controlAuthorEntityList =
       controlAuthorEntityCollection.OrderBy(entity => entity.AuthorId)
                                    .ToList();
 
-    var actualAuthorEntityList =
+    List<IAuthorEntity> actualAuthorEntityList =
       actualAuthorEntityCollection.OrderBy(entity => entity.AuthorId)
                                   .ToList();
 
@@ -120,9 +121,7 @@ public sealed class TestAuthorEntity : IAuthorEntity
     }
   }
 
-  public static void AreEqual(
-    IAuthorEntity controlAuthorEntity,
-    IAuthorEntity actualAuthorEntity)
+  public static void AreEqual(IAuthorEntity controlAuthorEntity, IAuthorEntity actualAuthorEntity)
   {
     Assert.AreEqual(controlAuthorEntity.Name, actualAuthorEntity.Name);
     Assert.AreEqual(controlAuthorEntity.Bio, actualAuthorEntity.Bio);

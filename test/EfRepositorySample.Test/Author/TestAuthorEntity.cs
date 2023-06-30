@@ -37,7 +37,7 @@ public sealed class TestAuthorEntity : IAuthorEntity
   public IEnumerable<IBookEntity> Books { get; }
 
   public static TestAuthorEntity New(IEnumerable<IBookEntity> books) =>
-    new TestAuthorEntity(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), books);
+    new(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), books);
 
   public static TestAuthorEntity New() => New(new List<IBookEntity>());
 

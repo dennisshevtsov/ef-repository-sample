@@ -4,8 +4,8 @@
 
 using Microsoft.EntityFrameworkCore;
 
-using EfRepositorySample.Data.Author;
-using EfRepositorySample.Data.Book;
+using EfRepositorySample.Author.Data;
+using EfRepositorySample.Book.Data;
 
 namespace EfRepositorySample.Data;
 

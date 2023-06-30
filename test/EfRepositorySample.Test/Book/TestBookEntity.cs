@@ -6,12 +6,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 using EfRepositorySample.Author;
-using EfRepositorySample.Book;
-using EfRepositorySample.Data.Author;
-using EfRepositorySample.Data.Book;
-using EfRepositorySample.Test.Author;
+using EfRepositorySample.Author.Data;
+using EfRepositorySample.Author.Data.Test;
 
-namespace EfRepositorySample.Test.Book;
+namespace EfRepositorySample.Book.Data.Test;
 
 public sealed class TestBookEntity : IBookEntity
 {

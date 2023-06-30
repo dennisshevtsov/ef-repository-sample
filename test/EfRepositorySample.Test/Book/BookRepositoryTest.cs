@@ -4,11 +4,11 @@
 
 using Microsoft.Extensions.DependencyInjection;
 
-using EfRepositorySample.Book;
 using EfRepositorySample.Author;
-using EfRepositorySample.Test.Author;
+using EfRepositorySample.Author.Data.Test;
+using EfRepositorySample.Test;
 
-namespace EfRepositorySample.Test.Book;
+namespace EfRepositorySample.Book.Data.Test;
 
 [TestClass]
 public sealed class BookRepositoryTest : IntegrationTestBase

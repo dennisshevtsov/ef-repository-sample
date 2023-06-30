@@ -2,15 +2,15 @@
 // Licensed under the MIT License.
 // See LICENSE in the project root for license information.
 
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
-using Microsoft.EntityFrameworkCore;
 
 using EfRepositorySample.Author;
+using EfRepositorySample.Author.Data;
 using EfRepositorySample.Book;
+using EfRepositorySample.Book.Data;
 using EfRepositorySample.Data;
-using EfRepositorySample.Data.Author;
-using EfRepositorySample.Data.Book;
 
 namespace Microsoft.Extensions.DependencyInjection;
 

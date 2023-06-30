@@ -2,9 +2,7 @@
 // Licensed under the MIT License.
 // See LICENSE in the project root for license information.
 
-using EfRepositorySample.Author;
-
-namespace EfRepositorySample.Test.Author;
+namespace EfRepositorySample.Author.Data.Test;
 
 public sealed class TestAuthorIdentity : IAuthorIdentity
 {

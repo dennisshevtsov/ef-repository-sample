@@ -4,14 +4,14 @@
 
 using Microsoft.EntityFrameworkCore;
 
-using EfRepositorySample.Author;
+using EfRepositorySample.Data;
 
-namespace EfRepositorySample.Data.Author;
+namespace EfRepositorySample.Author.Data;
 
 /// <summary>Provides a simple API to persistence of the <see cref="EfRepositorySample.Author.IAuthorEntity"/>.</summary>
 public sealed class AuthorRepository : RepositoryBase<AuthorEntity, IAuthorEntity, IAuthorIdentity>, IAuthorRepository
 {
-  /// <summary>Initializes a new instance of the <see cref="EfRepositorySample.Data.Author.AuthorRepository"/> class.</summary>
+  /// <summary>Initializes a new instance of the <see cref="EfRepositorySample.Author.Data.AuthorRepository"/> class.</summary>
   /// <param name="dbContext">An object that represents a session with the database and can be used to query and save instances of your entities.</param>
   public AuthorRepository(DbContext dbContext) : base(dbContext) { }
 }

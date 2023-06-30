@@ -5,12 +5,12 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace EfRepositorySample.Data.Book;
+namespace EfRepositorySample.Book.Data;
 
-/// <summary>Defines an entity type configuration for the <see cref="EfRepositorySample.Data.Book.BookEntity"/>.</summary>
+/// <summary>Defines an entity type configuration for the <see cref="EfRepositorySample.Book.Data.BookEntity"/>.</summary>
 public sealed class BookEntityTypeConfiguration : IEntityTypeConfiguration<BookEntity>
 {
-  /// <summary>Configures the entity of type <see cref="EfRepositorySample.Data.Book.BookEntity"/>.</summary>
+  /// <summary>Configures the entity of type <see cref="EfRepositorySample.Book.Data.BookEntity"/>.</summary>
   /// <param name="builder">An object that provides a simple API for configuring an <see cref="Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType" />.</param>
   public void Configure(EntityTypeBuilder<BookEntity> builder)
   {

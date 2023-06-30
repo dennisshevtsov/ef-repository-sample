@@ -5,11 +5,9 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
-using EfRepositorySample.Author;
 using EfRepositorySample.Book;
-using EfRepositorySample.Data.Author;
 
-namespace EfRepositorySample.Test.Author;
+namespace EfRepositorySample.Author.Data.Test;
 
 public sealed class TestAuthorEntity : IAuthorEntity
 {
@@ -39,7 +37,7 @@ public sealed class TestAuthorEntity : IAuthorEntity
   public IEnumerable<IBookEntity> Books { get; }
 
   public static TestAuthorEntity New(IEnumerable<IBookEntity> books) =>
-    new TestAuthorEntity(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), books);
+    new(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), books);
 
   public static TestAuthorEntity New() => New(new List<IBookEntity>());
 

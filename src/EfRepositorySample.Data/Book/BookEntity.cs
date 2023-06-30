@@ -3,10 +3,10 @@
 // See LICENSE in the project root for license information.
 
 using EfRepositorySample.Author;
-using EfRepositorySample.Book;
-using EfRepositorySample.Data.Author;
+using EfRepositorySample.Author.Data;
+using EfRepositorySample.Data;
 
-namespace EfRepositorySample.Data.Book;
+namespace EfRepositorySample.Book.Data;
 
 /// <summary>Represents a book entity.</summary>
 public sealed class BookEntity : EntityBase, IBookEntity, IUpdatable<IBookEntity>

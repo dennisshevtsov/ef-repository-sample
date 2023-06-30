@@ -5,12 +5,12 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace EfRepositorySample.Data.Author;
+namespace EfRepositorySample.Author.Data;
 
-/// <summary>Defines an entity type configuration for the <see cref="EfRepositorySample.Data.Author.AuthorEntity"/>.</summary>
+/// <summary>Defines an entity type configuration for the <see cref="EfRepositorySample.Author.Data.AuthorEntity"/>.</summary>
 public sealed class AuthorEntityTypeConfiguration : IEntityTypeConfiguration<AuthorEntity>
 {
-  /// <summary>Configures the entity of type <see cref="EfRepositorySample.Data.Author.AuthorEntity"/>.</summary>
+  /// <summary>Configures the entity of type <see cref="EfRepositorySample.Author.Data.AuthorEntity"/>.</summary>
   /// <param name="builder">An object that provides a simple API for configuring an <see cref="Microsoft.EntityFrameworkCore.Metadata.IMutableEntityType" />.</param>
   public void Configure(EntityTypeBuilder<AuthorEntity> builder)
   {

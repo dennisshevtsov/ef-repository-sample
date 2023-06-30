@@ -2,11 +2,11 @@
 // Licensed under the MIT License.
 // See LICENSE in the project root for license information.
 
-using EfRepositorySample.Author;
 using EfRepositorySample.Book;
-using EfRepositorySample.Data.Book;
+using EfRepositorySample.Book.Data;
+using EfRepositorySample.Data;
 
-namespace EfRepositorySample.Data.Author;
+namespace EfRepositorySample.Author.Data;
 
 /// <summary>Represents an author entity.</summary>
 public sealed class AuthorEntity : EntityBase, IAuthorEntity, IUpdatable<IAuthorEntity>

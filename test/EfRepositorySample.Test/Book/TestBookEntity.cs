@@ -6,12 +6,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 using EfRepositorySample.Author;
-using EfRepositorySample.Book;
-using EfRepositorySample.Data.Author;
-using EfRepositorySample.Data.Book;
-using EfRepositorySample.Test.Author;
+using EfRepositorySample.Author.Data;
+using EfRepositorySample.Author.Data.Test;
 
-namespace EfRepositorySample.Test.Book;
+namespace EfRepositorySample.Book.Data.Test;
 
 public sealed class TestBookEntity : IBookEntity
 {
@@ -49,7 +47,7 @@ public sealed class TestBookEntity : IBookEntity
   public IEnumerable<IAuthorEntity> Authors { get; }
 
   public static TestBookEntity New(int pages, IEnumerable<IAuthorEntity> authors) =>
-    new TestBookEntity(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), pages, authors);
+    new(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), pages, authors);
 
   public static TestBookEntity New(int pages) => TestBookEntity.New(pages, new List<IAuthorEntity>());
 

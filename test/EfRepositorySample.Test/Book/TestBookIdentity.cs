@@ -4,7 +4,7 @@
 
 using EfRepositorySample.Book;
 
-namespace EfRepositorySample.Test.Book;
+namespace EfRepositorySample.Book.Data.Test;
 
 public sealed class TestBookIdentity : IBookIdentity
 {
